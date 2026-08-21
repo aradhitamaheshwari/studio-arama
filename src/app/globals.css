@@ -1,26 +1,601 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   STUDIO ARAMA
+   Day is editorial and bright. Night is nocturnal, electric, slightly strange.
+   Night is designed, not inverted.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* DAY */
+  --bg: #f7f4ee;
+  --bg-sunk: #efeae1; /* recessed panels */
+  --ink: #111111;
+  --ink-soft: #6b6459; /* metadata, captions */
+  --line: #d9d2c6;
+  --accent: #e5231b;
+  /* The brand red reads 4.17:1 on cream, which is fine for graphics and large
+     type but short of AA for small text. This is the same red, darkened just
+     enough to clear 4.5:1 wherever the accent carries words. */
+  --accent-text: #cc1f18;
+  --accent-ink: #f7f4ee; /* type sitting on the accent */
+  --grain: 0.035;
+  --shadow: 0 30px 60px -30px rgb(17 17 17 / 0.28);
+
+  /* Motion. One place to retune the feel of the whole site. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --gutter: clamp(1.15rem, 4vw, 3.5rem);
+}
+
+[data-mode="night"] {
+  /* NIGHT */
+  --bg: #0b0b0a;
+  --bg-sunk: #141412;
+  --ink: #f2eee4;
+  --ink-soft: #8b877c;
+  --line: #2a2a26;
+  --accent: #b8ff00;
+  /* Neon green on near black is already 16:1. No adjustment needed. */
+  --accent-text: #b8ff00;
+  --accent-ink: #0b0b0a;
+  --grain: 0.05;
+  --shadow: 0 30px 70px -30px rgb(0 0 0 / 0.8);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-sunk: var(--bg-sunk);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-accent-ink: var(--accent-ink);
+  --font-grotesk: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-instrument), "Times New Roman", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* --------------------------------------------------------------------------
+   BASE
+   -------------------------------------------------------------------------- */
+
+* {
+  min-width: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Anchored sections clear the fixed navigation. */
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-grotesk);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  /* Mode changes read as a deliberate shift, not a flash. */
+  transition: background-color 0.55s var(--ease-soft), color 0.55s var(--ease-soft);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Usability is never traded for the visual layer. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Skip link, visible the moment it is focused. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.65rem 1rem;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: translateY(-160%);
+  transition: transform 0.3s var(--ease-out);
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   TYPOGRAPHY
+   Contrast is the whole point. Some type is huge, some is nearly invisible.
+   -------------------------------------------------------------------------- */
+
+/* The name. Its width axis is the identity, so it is animated, not fixed. */
+.wordmark {
+  font-family: var(--font-grotesk);
+  font-variation-settings: "wght" var(--wm-wght, 700), "wdth" var(--wm-wdth, 100);
+  letter-spacing: var(--wm-track, -0.03em);
+  line-height: 0.82;
+  text-transform: lowercase;
+  transition: font-variation-settings 0.6s var(--ease-out), letter-spacing 0.6s var(--ease-out);
+}
+
+/* Oversized editorial display. */
+.display {
+  font-family: var(--font-grotesk);
+  font-variation-settings: "wght" 700, "wdth" 100;
+  font-size: clamp(3rem, 13vw, 13rem);
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+  text-transform: lowercase;
+}
+
+.display-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 10vw, 10rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+/* The quiet voice. Metadata, captions, labels, clocks. */
+.label {
+  font-family: var(--font-grotesk);
+  font-variation-settings: "wght" 500, "wdth" 100;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.lede {
+  font-size: clamp(1.15rem, 2.1vw, 1.7rem);
+  line-height: 1.34;
+  letter-spacing: -0.015em;
+  text-wrap: pretty;
+}
+
+.body-copy {
+  font-size: clamp(1rem, 1.25vw, 1.1rem);
+  line-height: 1.62;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   LINKS
+   -------------------------------------------------------------------------- */
+
+.link {
+  position: relative;
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
+}
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.12em;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(var(--link-scale, 0));
+  transform-origin: left;
+  transition: transform 0.42s var(--ease-out);
+}
+.link:hover::after,
+.link:focus-visible::after {
+  --link-scale: 1;
+}
+.link--shown::after {
+  --link-scale: 1;
+}
+.link--shown:hover::after {
+  transform-origin: right;
+  --link-scale: 0;
+}
+
+/* --------------------------------------------------------------------------
+   GRAIN
+   A single fixed layer over everything. Cheap, and it holds the two modes
+   together.
+   -------------------------------------------------------------------------- */
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: var(--grain);
+  mix-blend-mode: var(--grain-blend, multiply);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-mode="night"] .grain {
+  --grain-blend: screen;
+}
+
+/* --------------------------------------------------------------------------
+   CURSOR
+   Desktop only. Never hides an interaction cue.
+   -------------------------------------------------------------------------- */
+
+@media (hover: hover) and (pointer: fine) {
+  body.has-cursor,
+  body.has-cursor a,
+  body.has-cursor button {
+    cursor: none;
+  }
+}
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 150;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  will-change: transform;
+  transition: width 0.34s var(--ease-out), height 0.34s var(--ease-out),
+    background-color 0.34s var(--ease-out), opacity 0.25s linear;
+}
+.cursor__word {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.24s var(--ease-out), transform 0.34s var(--ease-out);
+}
+.cursor[data-state="link"] {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid var(--accent);
+}
+.cursor[data-state="view"] {
+  width: 92px;
+  height: 92px;
+}
+.cursor[data-state="view"] .cursor__word {
+  opacity: 1;
+  transform: scale(1);
+}
+.cursor[data-hidden="true"] {
+  opacity: 0;
+}
+
+/* --------------------------------------------------------------------------
+   AMBIENT MOTION
+   The site keeps breathing when nobody is touching it. Not everything moves,
+   and nothing moves at the same rate.
+   -------------------------------------------------------------------------- */
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--tilt, 0deg));
+  }
+  100% {
+    transform: translate3d(var(--dx, 6px), var(--dy, -10px), 0) rotate(calc(var(--tilt, 0deg) * -1));
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* The name never sits perfectly still. The width axis moves by four units,
+   which is felt more than seen. */
+@keyframes breathe {
+  0%,
+  100% {
+    font-variation-settings: "wght" 700, "wdth" 100;
+  }
+  50% {
+    font-variation-settings: "wght" 700, "wdth" 96;
+  }
+}
+
+.breathe {
+  animation: breathe 11s var(--ease-soft) infinite;
+}
+
+.drift {
+  animation: drift var(--drift-dur, 9s) var(--ease-soft) infinite alternate;
+  animation-delay: var(--drift-delay, 0s);
+}
+
+/* --------------------------------------------------------------------------
+   HANDOFF FROM THE OPENING SEQUENCE
+   The composition waits behind the sequence, then rises into place. Both
+   attributes are set by script, so without JavaScript the page is simply
+   visible and static.
+   -------------------------------------------------------------------------- */
+
+[data-opening="true"] .hero-in {
+  opacity: 0;
+}
+
+[data-opened="true"] .hero-in {
+  animation: rise 1s var(--ease-out) both;
+  animation-delay: var(--rise-delay, 0s);
+}
+
+/* --------------------------------------------------------------------------
+   CAPABILITIES
+   A typographic list that answers the cursor. No paragraph per service.
+   -------------------------------------------------------------------------- */
+
+.cap__title {
+  display: inline-block;
+  font-variation-settings: "wght" 600, "wdth" 100;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  transition: font-variation-settings 0.6s var(--ease-out), color 0.4s linear;
+}
+
+.cap:hover .cap__title {
+  font-variation-settings: "wght" 600, "wdth" 118;
+  color: var(--accent);
+}
+
+.cap__item {
+  color: var(--ink-soft);
+  transition: color 0.35s linear;
+}
+
+.cap:hover .cap__item {
+  color: var(--ink);
+}
+
+.rise {
+  animation: rise 0.9s var(--ease-out) both;
+  animation-delay: var(--rise-delay, 0s);
+}
+
+/* Reveals on scroll. Set by an IntersectionObserver, so nothing animates
+   until it is actually looked at. */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition: opacity 0.85s var(--ease-out), transform 0.85s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Words that reveal one line at a time. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+}
+.line-mask > span {
+  display: block;
+  transform: translateY(105%);
+  transition: transform 0.95s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.is-in .line-mask > span,
+.line-mask.is-in > span {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   PROJECT FIELD
+   A composition, not a grid. Desktop places tiles by coordinate. Mobile
+   recomposes as a vertical editorial sequence, by design, not by collapse.
+   -------------------------------------------------------------------------- */
+
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3.5rem, 9vw, 6rem);
+  padding-inline: var(--gutter);
+}
+
+.tile {
+  position: relative;
+  display: block;
+  width: var(--m-w, 78%);
+  color: inherit;
+  text-decoration: none;
+  align-self: var(--m-align, flex-start);
+}
+
+.tile__frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-sunk);
+  aspect-ratio: var(--ratio, 1);
+  will-change: transform;
+  transition: transform 0.9s var(--ease-out);
+}
+
+.tile__media {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.9s var(--ease-out), opacity 0.6s var(--ease-out);
+}
+
+/* Curated hover behaviours. Projects with their own identity do not all move
+   the same way. */
+.tile[data-behaviour="zoom"]:hover .tile__media,
+.tile[data-behaviour="zoom"]:focus-visible .tile__media {
+  transform: scale(1.07);
+}
+.tile[data-behaviour="slide"]:hover .tile__media,
+.tile[data-behaviour="slide"]:focus-visible .tile__media {
+  transform: translate3d(-3%, 0, 0) scale(1.06);
+}
+.tile[data-behaviour="expand"]:hover .tile__frame,
+.tile[data-behaviour="expand"]:focus-visible .tile__frame {
+  transform: scale(1.035);
+}
+.tile[data-behaviour="swap"]:hover .tile__media,
+.tile[data-behaviour="swap"]:focus-visible .tile__media {
+  opacity: 0;
+}
+.tile__alt {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out);
+}
+.tile[data-behaviour="swap"]:hover .tile__alt,
+.tile[data-behaviour="swap"]:focus-visible .tile__alt {
+  opacity: 1;
+}
+
+/* Metadata layer. Always present for screen readers, revealed on approach. */
+.tile__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.6rem;
+}
+
+.tile__name {
+  font-size: clamp(1rem, 1.5vw, 1.35rem);
+  font-variation-settings: "wght" 600, "wdth" 100;
+  letter-spacing: -0.02em;
+  transition: font-variation-settings 0.5s var(--ease-out);
+}
+.tile:hover .tile__name,
+.tile:focus-visible .tile__name {
+  font-variation-settings: "wght" 600, "wdth" 112;
+}
+
+.tile__index {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Desktop: the field becomes a placed composition. */
+@media (min-width: 1024px) {
+  .field {
+    display: block;
+    height: var(--field-h, 300vh);
+    padding-inline: 0;
+    /* One tile is placed past the right edge on purpose, so the field crops
+       rather than stopping politely at the margin. */
+    overflow: clip;
+  }
+  .tile {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    align-self: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   PROJECT PAGE MEDIA RHYTHM
+   Different proportions on purpose. Nothing is a uniform rectangle.
+   -------------------------------------------------------------------------- */
+
+.media {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-sunk);
+}
+.media--full {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.media--wide {
+  width: min(100%, 84rem);
+  margin-inline: auto;
+  aspect-ratio: 16 / 10;
+}
+.media--portrait {
+  width: min(100%, 34rem);
+  aspect-ratio: 4 / 5;
+}
+.media--square {
+  width: min(100%, 40rem);
+  aspect-ratio: 1;
+}
+.media--narrow {
+  width: min(100%, 22rem);
+  aspect-ratio: 3 / 4;
+}
+.media--pair {
+  aspect-ratio: 3 / 4;
+}
+
+/* --------------------------------------------------------------------------
+   LAYOUT
+   -------------------------------------------------------------------------- */
+
+.gutter {
+  padding-inline: var(--gutter);
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   REDUCED MOTION
+   The experience never costs someone their comfort. Ambient motion stops,
+   reveals become instant, the opening sequence is skipped in the component.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .line-mask > span {
+    transform: none;
+  }
+  .drift {
+    animation: none !important;
+  }
+  .grain {
+    display: none;
+  }
 }
