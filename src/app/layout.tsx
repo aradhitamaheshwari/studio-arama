@@ -50,8 +50,20 @@ const accent = Pinyon_Script({
   display: "swap",
 });
 
+/**
+ * Canonical and Open Graph URLs resolve against this.
+ *
+ * Until studioarama.com is pointed at the deployment, falling back to it would
+ * make every canonical URL claim a site that is not there yet. On Vercel,
+ * VERCEL_URL names the deployment actually serving the page, so that wins
+ * unless a real site URL has been set explicitly.
+ */
+const resolvedUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : site.url);
+
 export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
+  metadataBase: new URL(resolvedUrl),
   title: {
     default: "studio arama",
     template: "%s, studio arama",
@@ -62,7 +74,7 @@ export const metadata: Metadata = {
     siteName: "studio arama",
     title: "studio arama",
     description: site.description,
-    url: site.url,
+    url: resolvedUrl,
   },
   twitter: {
     card: "summary_large_image",
