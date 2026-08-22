@@ -12,41 +12,48 @@ export const site = {
   url: "https://studioarama.com",
   email: "aradhita@studioarama.com",
   social: {
-    instagram: { label: "IG", handle: "@StudioArama", url: "https://instagram.com/studioarama" },
-    linkedin: { label: "LI", handle: "Studio Arama", url: "https://www.linkedin.com/company/studioarama" },
+    instagram: { label: "Instagram", handle: "@studioarama", url: "https://www.instagram.com/studioarama" },
+    linkedin: { label: "LinkedIn", handle: "Studio Arama", url: "https://www.linkedin.com/company/studio-arama/" },
   },
-  /** Navigation. Editorial labels, never Home / About / Services / Contact. */
+  /**
+   * Navigation. Work is a page of its own, the other two are places on the
+   * homepage. Editorial labels, never Home / About / Services / Contact.
+   */
   nav: [
-    { label: "Selected Work", href: "/#work" },
-    { label: "Studio", href: "/#studio" },
+    { label: "Work", href: "/work" },
     { label: "Capabilities", href: "/#capabilities" },
+    { label: "Studio", href: "/#studio" },
   ],
   cta: { label: "Start a Project", href: "/#start" },
   /**
    * The studio's working world. Not a claim of offices, a claim of hours.
+   * Ordered west to east, so the row reads as the day travelling.
    * IANA zone names, resolved live by Intl.
    */
   clocks: [
-    { city: "New Delhi", zone: "Asia/Kolkata" },
+    { city: "San Francisco", zone: "America/Los_Angeles" },
     { city: "New York", zone: "America/New_York" },
     { city: "London", zone: "Europe/London" },
-    { city: "San Francisco", zone: "America/Los_Angeles" },
+    { city: "New Delhi", zone: "Asia/Kolkata" },
   ],
 } as const;
 
-/** Capabilities, grouped. Typography carries these, not paragraphs. */
+/**
+ * Capabilities, grouped and numbered. Typography carries these, not paragraphs.
+ * Title Case throughout, including the acronyms, so the column reads evenly.
+ */
 export const capabilities = [
   {
     group: "Strategy",
-    items: ["Brand strategy", "Digital strategy", "Creative direction", "Go to market"],
+    items: ["Brand Strategy", "Digital Strategy", "Creative Direction", "Go To Market"],
   },
   {
     group: "Identity",
-    items: ["Brand identity", "Visual systems", "Art direction", "Campaign identity"],
+    items: ["Brand Identity", "Visual Systems", "Art Direction", "Campaign Identity"],
   },
   {
     group: "Digital",
-    items: ["Web design", "UX", "UI", "Development", "Digital experiences"],
+    items: ["Web Design", "UX Design", "UI Design", "Development", "Digital Experiences"],
   },
   {
     group: "Content",

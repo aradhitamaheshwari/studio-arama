@@ -28,6 +28,18 @@
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
 
   --gutter: clamp(1.15rem, 4vw, 3.5rem);
+
+  /* ------------------------------------------------------------------
+     SPACING SCALE
+     Every vertical rhythm in the site comes from these five steps. Sections
+     are separated by --space-section, blocks inside them by --space-block.
+     Retune the site's density here rather than per component.
+     ------------------------------------------------------------------ */
+  --space-xs: clamp(0.5rem, 0.8vw, 0.75rem);
+  --space-sm: clamp(1rem, 1.6vw, 1.5rem);
+  --space-md: clamp(2rem, 3.5vw, 3.5rem);
+  --space-block: clamp(3.5rem, 6vw, 6rem);
+  --space-section: clamp(7rem, 13vw, 14rem);
 }
 
 [data-mode="night"] {
@@ -54,8 +66,9 @@
   --color-accent: var(--accent);
   --color-accent-text: var(--accent-text);
   --color-accent-ink: var(--accent-ink);
-  --font-grotesk: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
-  --font-serif: var(--font-instrument), "Times New Roman", serif;
+  --font-display: var(--font-fraunces), "Times New Roman", serif;
+  --font-body: var(--font-sora), "Helvetica Neue", Arial, sans-serif;
+  --font-accent: var(--font-script), "Snell Roundhand", cursive;
 }
 
 /* --------------------------------------------------------------------------
@@ -76,7 +89,7 @@ html {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-grotesk);
+  font-family: var(--font-body);
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -121,55 +134,76 @@ body {
    Contrast is the whole point. Some type is huge, some is nearly invisible.
    -------------------------------------------------------------------------- */
 
-/* The name. Its width axis is the identity, so it is animated, not fixed. */
+/**
+ * The name. Fraunces carries no width axis, so the expansion that used to run
+ * on width now runs on tracking, weight and WONK together. It reads as the
+ * same gesture, with more character in it.
+ */
 .wordmark {
-  font-family: var(--font-grotesk);
-  font-variation-settings: "wght" var(--wm-wght, 700), "wdth" var(--wm-wdth, 100);
-  letter-spacing: var(--wm-track, -0.03em);
-  line-height: 0.82;
+  font-family: var(--font-display);
+  font-variation-settings: "wght" var(--wm-wght, 600), "SOFT" var(--wm-soft, 20),
+    "WONK" var(--wm-wonk, 0), "opsz" var(--wm-opsz, 48);
+  letter-spacing: var(--wm-track, -0.02em);
+  line-height: 0.86;
   text-transform: lowercase;
-  transition: font-variation-settings 0.6s var(--ease-out), letter-spacing 0.6s var(--ease-out);
+  transition: font-variation-settings 0.55s var(--ease-out),
+    letter-spacing 0.55s var(--ease-out);
 }
 
-/* Oversized editorial display. */
+/* Oversized editorial display. Optical size rises with the type. */
 .display {
-  font-family: var(--font-grotesk);
-  font-variation-settings: "wght" 700, "wdth" 100;
-  font-size: clamp(3rem, 13vw, 13rem);
-  line-height: 0.84;
-  letter-spacing: -0.035em;
+  font-family: var(--font-display);
+  font-variation-settings: "wght" 600, "SOFT" 30, "WONK" 1, "opsz" 144;
+  font-size: clamp(2.6rem, 9vw, 8.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+/* A step down from display. Section headings that are not the loudest thing. */
+.heading {
+  font-family: var(--font-display);
+  font-variation-settings: "wght" 600, "SOFT" 25, "WONK" 1, "opsz" 96;
+  font-size: clamp(1.9rem, 4.6vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
   text-transform: lowercase;
 }
 
-.display-serif {
-  font-family: var(--font-serif);
+/* The accent. Used for a handful of moments, never for information. */
+.script {
+  font-family: var(--font-accent);
   font-weight: 400;
-  font-size: clamp(2.6rem, 10vw, 10rem);
-  line-height: 0.92;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  letter-spacing: 0;
 }
 
 /* The quiet voice. Metadata, captions, labels, clocks. */
 .label {
-  font-family: var(--font-grotesk);
-  font-variation-settings: "wght" 500, "wdth" 100;
-  font-size: 0.66rem;
-  letter-spacing: 0.16em;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-soft);
   line-height: 1.4;
 }
 
 .lede {
-  font-size: clamp(1.15rem, 2.1vw, 1.7rem);
-  line-height: 1.34;
-  letter-spacing: -0.015em;
+  font-family: var(--font-display);
+  font-variation-settings: "wght" 400, "SOFT" 40, "WONK" 0, "opsz" 72;
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+  line-height: 1.32;
+  letter-spacing: -0.012em;
   text-wrap: pretty;
 }
 
 .body-copy {
-  font-size: clamp(1rem, 1.25vw, 1.1rem);
-  line-height: 1.62;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.68;
   color: var(--ink-soft);
   text-wrap: pretty;
 }
@@ -206,6 +240,210 @@ body {
 .link--shown:hover::after {
   transform-origin: right;
   --link-scale: 0;
+}
+
+/* --------------------------------------------------------------------------
+   OPENING SEQUENCE
+   Seven fields of colour sweep, gather and blast out through the frame.
+   Transform and opacity only, so it stays on the compositor.
+   -------------------------------------------------------------------------- */
+
+.seq {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  overflow: hidden;
+  background: var(--bg);
+  animation: seq-ground 3s var(--ease-soft) forwards;
+}
+
+.seq__stage {
+  position: absolute;
+  inset: 0;
+  /* Multiply keeps the colour dense on cream. Screen makes it glow at night. */
+  mix-blend-mode: var(--seq-blend, multiply);
+}
+[data-mode="night"] .seq__stage {
+  --seq-blend: screen;
+}
+
+/* Elongated rather than round, and set at an angle, so each one reads as
+   colour travelling in a direction instead of a blob sitting on the screen. */
+.seq__field {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 66vmax;
+  height: 26vmax;
+  margin: -13vmax 0 0 -33vmax;
+  border-radius: 50%;
+  will-change: transform, opacity;
+  animation: seq-sweep 3s cubic-bezier(0.32, 0.12, 0.2, 1) forwards;
+}
+
+/* Sweep in on its own path, gather at the centre, then leave through the
+   frame. The compression before the blast is what gives it momentum. */
+@keyframes seq-sweep {
+  0% {
+    transform: translate3d(var(--x0), var(--y0), 0) rotate(var(--rot, 0deg))
+      scale(calc(var(--s) * 0.5));
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.92;
+  }
+  46% {
+    transform: translate3d(var(--x1), var(--y1), 0) rotate(calc(var(--rot, 0deg) * 0.4))
+      scale(calc(var(--s) * 1.15));
+    opacity: 0.92;
+  }
+  68% {
+    /* The compression. Everything folds toward the middle before it goes. */
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(calc(var(--s) * 0.34));
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(calc(var(--s) * 8));
+    opacity: 0;
+  }
+}
+
+/* The page is already behind this. The ground clears so the colour appears to
+   blast through it rather than off it. */
+@keyframes seq-ground {
+  0%,
+  66% {
+    background-color: var(--bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.seq__flash {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0;
+  animation: seq-flash 3s linear forwards;
+}
+
+/* The bloom lands after the compression, not during it, so the gathered
+   colour is seen at full strength before the light takes over. */
+@keyframes seq-flash {
+  0%,
+  69% {
+    opacity: 0;
+  }
+  77% {
+    opacity: 0.62;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: the same colour, held still, then gone. */
+.seq[data-calm="true"] .seq__field {
+  animation: seq-calm 0.9s var(--ease-out) forwards;
+}
+.seq[data-calm="true"],
+.seq[data-calm="true"] .seq__flash {
+  animation: none;
+  background: var(--bg);
+}
+.seq[data-calm="true"] {
+  animation: seq-calm-ground 0.9s linear forwards;
+}
+
+@keyframes seq-calm {
+  0% {
+    transform: translate3d(var(--x1), var(--y1), 0) scale(var(--s));
+    opacity: 0;
+  }
+  35%,
+  65% {
+    transform: translate3d(var(--x1), var(--y1), 0) scale(var(--s));
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(var(--x1), var(--y1), 0) scale(var(--s));
+    opacity: 0;
+  }
+}
+
+@keyframes seq-calm-ground {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   HEADER
+   Attention follows the cursor. Whatever is not being looked at softens by a
+   little blur and a drop in opacity, never enough to look broken.
+   -------------------------------------------------------------------------- */
+
+.hdr [data-hdr-el] {
+  transition: opacity 0.4s var(--ease-out), filter 0.4s var(--ease-out);
+}
+
+.hdr[data-dim="true"] [data-hdr-el] {
+  opacity: 0.32;
+  filter: blur(1.6px);
+}
+
+.hdr[data-dim="true"] [data-hdr-el][data-active="true"] {
+  opacity: 1;
+  filter: none;
+}
+
+/* The name expands on approach. Fraunces has no width axis, so the gesture
+   runs on tracking, weight and a touch of WONK instead. */
+.wordmark-link:hover,
+.wordmark-link:focus-visible {
+  --wm-track: 0.04em;
+  --wm-wght: 700;
+  --wm-soft: 70;
+  --wm-wonk: 1;
+}
+
+.nav-link {
+  position: relative;
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.35em;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.42s var(--ease-out);
+}
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+@keyframes sound-bar {
+  from {
+    transform: scaleY(0.55);
+  }
+  to {
+    transform: scaleY(1.25);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -314,10 +552,10 @@ body {
 @keyframes breathe {
   0%,
   100% {
-    font-variation-settings: "wght" 700, "wdth" 100;
+    font-variation-settings: "wght" 600, "SOFT" 20, "WONK" 0, "opsz" 48;
   }
   50% {
-    font-variation-settings: "wght" 700, "wdth" 96;
+    font-variation-settings: "wght" 600, "SOFT" 45, "WONK" 1, "opsz" 48;
   }
 }
 
@@ -353,14 +591,15 @@ body {
 
 .cap__title {
   display: inline-block;
-  font-variation-settings: "wght" 600, "wdth" 100;
-  letter-spacing: -0.02em;
-  text-transform: lowercase;
+  font-family: var(--font-display);
+  font-variation-settings: "wght" 500, "SOFT" 25, "WONK" 0, "opsz" 96;
+  letter-spacing: -0.015em;
   transition: font-variation-settings 0.6s var(--ease-out), color 0.4s linear;
 }
 
-.cap:hover .cap__title {
-  font-variation-settings: "wght" 600, "wdth" 118;
+.cap:hover .cap__title,
+.cap:focus-within .cap__title {
+  font-variation-settings: "wght" 600, "SOFT" 60, "WONK" 1, "opsz" 96;
   color: var(--accent);
 }
 
@@ -405,6 +644,92 @@ body {
 .is-in .line-mask > span,
 .line-mask.is-in > span {
   transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   LANDING RING
+   Positions are written by script every frame. Everything here is the look:
+   size, framing, and how a tile answers the cursor.
+   -------------------------------------------------------------------------- */
+
+.orbit {
+  position: relative;
+  height: min(62vh, 34rem);
+  margin-block: var(--space-md);
+}
+
+.orbit__item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(12rem, 19vw, 18rem);
+  /* Script centres each tile with translate(-50%, -50%), so no margin
+     correction is needed and tiles of different heights all sit true. */
+  color: inherit;
+  text-decoration: none;
+  will-change: transform, opacity;
+  /* Script owns transform and opacity. Only the hover lift is a transition. */
+  transition: filter 0.5s var(--ease-out);
+}
+
+.orbit__item .tile__frame {
+  transition: transform 0.6s var(--ease-out), box-shadow 0.6s var(--ease-out);
+}
+
+.orbit__item:hover .tile__frame,
+.orbit__item:focus-visible .tile__frame {
+  transform: scale(1.06);
+  box-shadow: var(--shadow);
+}
+
+/* Metadata rides under the tile and arrives on approach. */
+.orbit__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.7rem;
+  opacity: 0;
+  transform: translateY(-0.35rem);
+  transition: opacity 0.4s var(--ease-out), transform 0.5s var(--ease-out);
+}
+.orbit__meta[data-shown="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   LANDING RAIL
+   The small screen answer to the ring. Same tiles, thumbed through.
+   -------------------------------------------------------------------------- */
+
+.rail {
+  display: flex;
+  gap: clamp(1rem, 4vw, 2rem);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding-inline: var(--gutter);
+  padding-block: var(--space-sm) var(--space-md);
+  /* The scrollbar is noise here. The rail reads as a composition. */
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail__item {
+  position: relative;
+  flex: 0 0 var(--rail-w, 70vw);
+  scroll-snap-align: center;
+  margin-top: var(--rail-shift, 0);
+  color: inherit;
+  text-decoration: none;
+}
+
+.rail__item .orbit__meta {
+  opacity: 1;
+  transform: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -486,14 +811,16 @@ body {
 }
 
 .tile__name {
-  font-size: clamp(1rem, 1.5vw, 1.35rem);
-  font-variation-settings: "wght" 600, "wdth" 100;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  font-variation-settings: "wght" 500, "SOFT" 20, "WONK" 0, "opsz" 48;
+  letter-spacing: -0.015em;
+  text-transform: lowercase;
   transition: font-variation-settings 0.5s var(--ease-out);
 }
 .tile:hover .tile__name,
 .tile:focus-visible .tile__name {
-  font-variation-settings: "wght" 600, "wdth" 112;
+  font-variation-settings: "wght" 600, "SOFT" 60, "WONK" 1, "opsz" 48;
 }
 
 .tile__index {
@@ -566,6 +893,35 @@ body {
   height: 1px;
   background: var(--line);
   border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   FOOTER
+   -------------------------------------------------------------------------- */
+
+/* Scales to the width of its box. Never clips, never overflows. */
+.footer-mark {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--ink);
+}
+
+.footer-link {
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color 0.35s var(--ease-out);
+}
+.footer-link:hover,
+.footer-link:focus-visible {
+  color: var(--accent-text);
+}
+.footer-link:hover .footer-link__text,
+.footer-link:focus-visible .footer-link__text {
+  color: inherit;
+}
+.footer-link__text {
+  transition: color 0.35s var(--ease-out);
 }
 
 /* --------------------------------------------------------------------------

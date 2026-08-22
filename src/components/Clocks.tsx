@@ -42,7 +42,7 @@ export default function Clocks() {
             <div className="label whitespace-nowrap">{city}</div>
             <div
               className="mt-1 text-[0.95rem] tabular-nums"
-              style={{ fontVariationSettings: '"wght" 500, "wdth" 100' }}
+              style={{ fontWeight: 500 }}
             >
               <time suppressHydrationWarning>{time}</time>
             </div>

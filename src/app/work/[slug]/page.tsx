@@ -144,7 +144,9 @@ export default async function ProjectPage({ params }: Params) {
       {/* Closing thought. */}
       {project.closing && (
         <section className="gutter pt-20 md:pt-32">
-          <p className="reveal display-serif max-w-[24ch] italic">{project.closing}</p>
+          <p className="reveal script max-w-[26ch] text-[clamp(1.5rem,3vw,2.4rem)] text-accent">
+            {project.closing}
+          </p>
         </section>
       )}
 

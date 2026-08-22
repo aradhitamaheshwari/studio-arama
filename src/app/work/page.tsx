@@ -9,18 +9,34 @@ export const metadata: Metadata = {
 };
 
 /**
- * The same field the homepage holds, given its own page and its own address.
+ * The archive. The landing ring and this page read from the same project data
+ * and point at the same routes, so a project is only ever described once.
  */
 export default function WorkPage() {
   return (
-    <section className="pt-28 md:pt-36">
-      <div className="gutter mb-14 flex items-end justify-between md:mb-24">
-        <h1 className="display">selected work</h1>
-        <span className="label hidden whitespace-nowrap pb-3 sm:block">
-          {String(projects.length).padStart(2, "0")} projects
-        </span>
+    <section className="pt-32 md:pt-40">
+      <div className="gutter">
+        <div className="reveal flex items-baseline gap-4">
+          <span className="label">Selected Work</span>
+          <span className="rule flex-1" />
+          <span className="label whitespace-nowrap">
+            {String(projects.length).padStart(2, "0")} Projects
+          </span>
+        </div>
+
+        <h1 className="reveal display mt-[var(--space-md)]">selected work</h1>
+
+        <p
+          className="reveal body-copy mt-[var(--space-md)] max-w-[46ch]"
+          style={{ ["--reveal-delay" as string]: "0.1s" }}
+        >
+          A working archive. Every project here opens into its own story.
+        </p>
       </div>
-      <ProjectField />
+
+      <div className="mt-[var(--space-section)]">
+        <ProjectField />
+      </div>
     </section>
   );
 }

@@ -27,6 +27,21 @@ const CHORDS: Record<Mode, number[]> = {
   night: [82.41, 98, 123.47, 164.81],
 };
 
+/**
+ * The figure that plays over the pad. Sixteen steps, mostly rests, so it
+ * suggests a rhythm rather than keeping time. Numbers index the chord, and
+ * null is a step that stays quiet.
+ *
+ * Day skips upward and lands on the octave. Night hangs back and syncopates.
+ */
+const PATTERNS: Record<Mode, (number | null)[]> = {
+  day: [2, null, 3, null, null, 2, null, 4, null, null, 3, null, 4, null, 2, null],
+  night: [null, 2, null, null, 3, null, null, 2, null, 4, null, null, 2, null, null, 3],
+};
+
+/** Milliseconds per step. Quick enough to feel alive, slow enough to sit under. */
+const STEP_MS = 250;
+
 class AudioEngine {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
@@ -35,6 +50,8 @@ class AudioEngine {
   private filter: BiquadFilterNode | null = null;
   private lfo: OscillatorNode | null = null;
   private blipTimer: number | null = null;
+  private stepTimer: number | null = null;
+  private step = 0;
   private mode: Mode = "day";
 
   get running() {
@@ -59,10 +76,58 @@ class AudioEngine {
 
     this.startBed(mode);
 
-    // Ease in over three seconds. The visitor should notice the room change,
+    // Ease in over two seconds. The visitor should notice the room change,
     // not the moment it switched on.
-    master.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 3);
+    master.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 2);
+    this.runSequence();
     this.scheduleBlip();
+  }
+
+  /**
+   * A short plucked note. Fast attack, quick decay, gone before it can nag.
+   * This is what gives the atmosphere a pulse instead of a drone.
+   */
+  private pluck(freq: number) {
+    const ctx = this.ctx;
+    const master = this.master;
+    if (!ctx || !master) return;
+    const t = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const tone = ctx.createBiquadFilter();
+
+    osc.type = this.mode === "night" ? "triangle" : "sine";
+    osc.frequency.value = freq;
+    // A little detune each time, so repeats never sound machine stamped.
+    osc.detune.value = (Math.random() - 0.5) * 14;
+
+    tone.type = "lowpass";
+    tone.frequency.setValueAtTime(this.mode === "night" ? 1600 : 2600, t);
+    tone.frequency.exponentialRampToValueAtTime(600, t + 0.3);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.055, t + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+
+    osc.connect(tone).connect(gain).connect(master);
+    osc.start(t);
+    osc.stop(t + 0.5);
+  }
+
+  /** Walks the pattern. Rests stay silent, so the figure keeps moving. */
+  private runSequence() {
+    if (typeof window === "undefined") return;
+    this.stepTimer = window.setInterval(() => {
+      const pattern = PATTERNS[this.mode];
+      const slot = pattern[this.step % pattern.length];
+      this.step++;
+      if (slot === null) return;
+      const chord = CHORDS[this.mode];
+      const base = chord[Math.min(slot, chord.length - 1)];
+      // Every so often it lifts an octave. Small surprise, no drama.
+      this.pluck(Math.random() < 0.18 ? base * 2 : base);
+    }, STEP_MS);
   }
 
   private startBed(mode: Mode) {
@@ -76,11 +141,11 @@ class AudioEngine {
     filter.connect(master);
     this.filter = filter;
 
-    // Slow sweep across the filter so the bed never sits still.
+    // Sweep across the filter so the bed keeps moving under the figure.
     const lfo = ctx.createOscillator();
     const lfoGain = ctx.createGain();
-    lfo.frequency.value = 0.045;
-    lfoGain.gain.value = mode === "night" ? 130 : 220;
+    lfo.frequency.value = 0.14;
+    lfoGain.gain.value = mode === "night" ? 220 : 340;
     lfo.connect(lfoGain).connect(filter.frequency);
     lfo.start();
     this.lfo = lfo;
@@ -139,7 +204,7 @@ class AudioEngine {
 
   private scheduleBlip() {
     if (typeof window === "undefined") return;
-    const wait = 7000 + Math.random() * 15000;
+    const wait = 4000 + Math.random() * 8000;
     this.blipTimer = window.setTimeout(() => {
       this.blip(0.6);
       this.scheduleBlip();
@@ -151,7 +216,9 @@ class AudioEngine {
     const ctx = this.ctx;
     if (!ctx || !this.filter) return;
     const t = ctx.currentTime;
-    // Move the room rather than rebuild it.
+    // Move the room rather than rebuild it. The figure follows on its own,
+    // since it reads the mode fresh on every step.
+    this.step = 0;
     this.filter.frequency.linearRampToValueAtTime(mode === "night" ? 420 : 700, t + 1.2);
     CHORDS[mode].forEach((freq, i) => {
       const voice = this.voices[i];
@@ -165,6 +232,8 @@ class AudioEngine {
     if (!ctx || !master) return;
     if (this.blipTimer) window.clearTimeout(this.blipTimer);
     this.blipTimer = null;
+    if (this.stepTimer) window.clearInterval(this.stepTimer);
+    this.stepTimer = null;
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
     master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.6);

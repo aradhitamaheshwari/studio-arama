@@ -18,12 +18,22 @@ type Props = {
   className?: string;
   /** Set on the first meaningful image of a page. */
   priority?: boolean;
+  /** Everything below the fold should wait until it is needed. */
+  loading?: "lazy" | "eager";
   sizes?: string;
 };
 
 const VARIANTS = 6;
 
-export default function ProjectVisual({ variant, src, alt, className, priority, sizes = "100vw" }: Props) {
+export default function ProjectVisual({
+  variant,
+  src,
+  alt,
+  className,
+  priority,
+  loading,
+  sizes = "100vw",
+}: Props) {
   if (src) {
     return (
       <Image
@@ -31,6 +41,8 @@ export default function ProjectVisual({ variant, src, alt, className, priority, 
         alt={alt}
         fill
         priority={priority}
+        // next/image rejects both at once, and priority already implies eager.
+        loading={priority ? undefined : loading}
         sizes={sizes}
         className={`object-cover ${className ?? ""}`}
       />
@@ -57,7 +69,7 @@ export default function ProjectVisual({ variant, src, alt, className, priority, 
               y="330"
               textAnchor="middle"
               fontSize="440"
-              fontFamily="var(--font-serif), serif"
+              fontFamily="var(--font-display), serif"
               fill="var(--ink)"
               opacity="0.9"
             >
