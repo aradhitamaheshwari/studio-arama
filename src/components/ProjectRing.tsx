@@ -114,7 +114,7 @@ export default function ProjectRing() {
       speed += (targetSpeed - speed) * 0.06;
       lean += (targetLean - lean) * 0.05;
       // Base drift, plus whichever way the cursor is leaning.
-      angle += dt * (0.085 * speed + lean * 0.14 * speed);
+      angle += dt * (0.22 * speed + lean * 0.3 * speed);
 
       const n = tiles.length;
       for (let i = 0; i < n; i++) {

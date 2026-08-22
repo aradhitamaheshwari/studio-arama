@@ -30,23 +30,6 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------
-          WHAT THE STUDIO IS
-          --------------------------------------------------------------- */}
-      <section className="gutter pt-[var(--space-section)]">
-        {/* Parallax writes a transform, and so does the reveal. They live on
-            separate elements so neither overwrites the other. */}
-        <div className="grid md:grid-cols-12" data-parallax="0.05">
-          <p className="reveal lede md:col-span-9 md:col-start-3">
-            Studio Arama is a creative partner for design, development and innovation. We take on a
-            small number of clients at a time and build brands and digital experiences worth
-            returning to. The work runs across art, fashion, ecommerce, sport and technology:
-            websites, digital experiences and the systems underneath them, made for people who care
-            as much about how something performs as how it looks.
-          </p>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------
           STUDIO
           Philosophy, not a founder biography.
           --------------------------------------------------------------- */}
@@ -64,7 +47,7 @@ export default function Home() {
               those things actually live apart.
             </p>
             <p
-              className="reveal script mt-[var(--space-md)] text-[clamp(1.5rem,3vw,2.4rem)] text-accent"
+              className="reveal script mt-[var(--space-md)] text-[clamp(2.1rem,4.6vw,3.8rem)] text-accent"
               style={{ ["--reveal-delay" as string]: "0.1s" }}
             >
               We are drawn to ideas that still have somewhere to go.
@@ -127,6 +110,25 @@ export default function Home() {
             </div>
           ))}
           <div className="border-t border-line" />
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------------
+          WHAT THE STUDIO IS
+          Sits after the capabilities, so the breadth above it is already
+          established by the time the studio describes itself.
+          --------------------------------------------------------------- */}
+      <section className="gutter pt-[var(--space-section)]">
+        {/* Parallax writes a transform, and so does the reveal. They live on
+            separate elements so neither overwrites the other. */}
+        <div className="grid md:grid-cols-12" data-parallax="0.05">
+          <p className="reveal lede md:col-span-9 md:col-start-3">
+            Studio Arama is a creative partner for design, development and innovation. We take on a
+            small number of clients at a time and build brands and digital experiences worth
+            returning to. The work runs across art, fashion, ecommerce, sport and technology:
+            websites, digital experiences and the systems underneath them, made for people who care
+            as much about how something performs as how it looks.
+          </p>
         </div>
       </section>
 

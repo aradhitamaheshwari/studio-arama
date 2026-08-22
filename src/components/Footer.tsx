@@ -53,26 +53,31 @@ export default function Footer() {
       {/*
         The name at full width.
 
-        Drawn as SVG rather than set as CSS text on purpose. `textLength` pins
-        the word to exactly the width of its box and the viewBox scales it, so
-        it fills the line precisely at every viewport and cannot clip or
-        overflow. `lengthAdjust="spacing"` moves the tracking only, so the
-        letterforms are never stretched to make it fit.
+        Drawn as SVG rather than set as CSS text on purpose. The viewBox scales
+        the word to the width of its box, so it fills the line at every viewport
+        and cannot clip or overflow.
+
+        The font size is calibrated so Fraunces sets "studio arama" at very close
+        to the full 100 units on its own. `textLength` then has almost nothing to
+        correct and the letters keep their designed spacing. It stays as a safety
+        net: if the face falls back to a metrically different one, it reins the
+        word back in, and `lengthAdjust="spacing"` means it does that by tracking
+        rather than by stretching the letterforms.
       */}
       <div className="mt-[var(--space-block)]">
         <svg
           className="footer-mark"
-          viewBox="0 0 100 15"
+          viewBox="0 0 100 16.6"
           preserveAspectRatio="xMidYMid meet"
           role="img"
           aria-label={site.name}
         >
           <text
             x="0"
-            y="12.4"
+            y="15.2"
             textLength="100"
             lengthAdjust="spacing"
-            fontSize="15.5"
+            fontSize="19.23"
             fill="currentColor"
             style={{
               fontFamily: "var(--font-display)",
