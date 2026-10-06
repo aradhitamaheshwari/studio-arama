@@ -2,38 +2,38 @@
 
 /* ==========================================================================
    STUDIO ARAMA
-   Day is editorial and bright. Night is nocturnal, electric, slightly strange.
-   Night is designed, not inverted.
+   Black, a warm off white, and the work. The interface carries no colour of
+   its own, so every colour on the page comes from the projects.
+   Night is the same system inverted, still with no accent hue.
    ========================================================================== */
 
 :root {
   /* DAY */
-  --bg: #f7f4ee;
-  --bg-sunk: #efeae1; /* recessed panels */
-  --ink: #111111;
-  --ink-soft: #6b6459; /* metadata, captions */
-  --line: #d9d2c6;
-  --accent: #e5231b;
-  /* The brand red reads 4.17:1 on cream, which is fine for graphics and large
-     type but short of AA for small text. This is the same red, darkened just
-     enough to clear 4.5:1 wherever the accent carries words. */
-  --accent-text: #cc1f18;
-  --accent-ink: #f7f4ee; /* type sitting on the accent */
-  --grain: 0.035;
-  --shadow: 0 30px 60px -30px rgb(17 17 17 / 0.28);
+  --bg: #fefdfc;
+  --bg-sunk: #f2f0ed; /* image wells, before the picture loads */
+  --ink: #000000;
+  --ink-soft: #7a7671; /* metadata, captions, inactive states */
+  --line: #e2dfdb;
+  /* Kept as tokens so components do not need rewriting, but the interface has
+     no accent hue any more. Both resolve to the foreground. */
+  --accent: var(--ink);
+  --accent-text: var(--ink);
+  --accent-ink: var(--bg);
+  --shadow: 0 30px 60px -30px rgb(0 0 0 / 0.18);
 
   /* Motion. One place to retune the feel of the whole site. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  /* The project swap. Fast enough to feel tactile, long enough to read. */
+  --swap: 0.42s;
 
-  --gutter: clamp(1.15rem, 4vw, 3.5rem);
+  --gutter: clamp(1.15rem, 3.2vw, 2.75rem);
 
   /* ------------------------------------------------------------------
      SPACING SCALE
-     Every vertical rhythm in the site comes from these five steps. Sections
-     are separated by --space-section, blocks inside them by --space-block.
-     Retune the site's density here rather than per component.
+     Every vertical rhythm in the site comes from these steps. Sections are
+     separated by --space-section, blocks inside them by --space-block.
      ------------------------------------------------------------------ */
   --space-xs: clamp(0.5rem, 0.8vw, 0.75rem);
   --space-sm: clamp(1rem, 1.6vw, 1.5rem);
@@ -43,17 +43,12 @@
 }
 
 [data-mode="night"] {
-  /* NIGHT */
-  --bg: #0b0b0a;
-  --bg-sunk: #141412;
-  --ink: #f2eee4;
-  --ink-soft: #8b877c;
-  --line: #2a2a26;
-  --accent: #b8ff00;
-  /* Neon green on near black is already 16:1. No adjustment needed. */
-  --accent-text: #b8ff00;
-  --accent-ink: #0b0b0a;
-  --grain: 0.05;
+  /* NIGHT. The same restraint, reversed. */
+  --bg: #0a0a0a;
+  --bg-sunk: #161616;
+  --ink: #fefdfc;
+  --ink-soft: #8a8782;
+  --line: #262626;
   --shadow: 0 30px 70px -30px rgb(0 0 0 / 0.8);
 }
 
@@ -66,9 +61,20 @@
   --color-accent: var(--accent);
   --color-accent-text: var(--accent-text);
   --color-accent-ink: var(--accent-ink);
-  --font-display: var(--font-fraunces), "Times New Roman", serif;
-  --font-body: var(--font-sora), "Helvetica Neue", Arial, sans-serif;
-  --font-accent: var(--font-script), "Snell Roundhand", cursive;
+  /*
+    TYPEFACES
+    The brief asks for JJannon Regular and Public Text Mono. Neither is in the
+    supplied assets, installed on this machine, or available from Google Fonts,
+    so each has a stand in chosen from the same lineage rather than a generic
+    substitute: EB Garamond is drawn from the Garamond and Jannon tradition
+    JJannon revives, and IBM Plex Mono covers the functional role.
+
+    To swap in the real files: drop them in src/app/fonts, point next/font
+    localFont at them in layout.tsx, and keep these two variable names. No
+    component refers to a typeface by name.
+  */
+  --font-display: var(--font-serif-stack), "EB Garamond", "Times New Roman", serif;
+  --font-body: var(--font-mono-stack), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 /* --------------------------------------------------------------------------
@@ -131,81 +137,77 @@ body {
 
 /* --------------------------------------------------------------------------
    TYPOGRAPHY
-   Contrast is the whole point. Some type is huge, some is nearly invisible.
+   Two voices. The serif speaks, the mono labels. Nothing in between.
+   EB Garamond is an old style face, so it has no variable axes to animate and
+   sets small. Its optical size is corrected with tracking instead.
    -------------------------------------------------------------------------- */
 
-/**
- * The name. Fraunces carries no width axis, so the expansion that used to run
- * on width now runs on tracking, weight and WONK together. It reads as the
- * same gesture, with more character in it.
- */
+/* The name. The expansion on approach runs on tracking, which is the one
+   gesture an old style serif can make without distorting. */
 .wordmark {
   font-family: var(--font-display);
-  font-variation-settings: "wght" var(--wm-wght, 600), "SOFT" var(--wm-soft, 20),
-    "WONK" var(--wm-wonk, 0), "opsz" var(--wm-opsz, 48);
-  letter-spacing: var(--wm-track, -0.02em);
-  line-height: 0.86;
+  font-weight: 400;
+  letter-spacing: var(--wm-track, 0.01em);
+  line-height: 1;
   text-transform: lowercase;
-  transition: font-variation-settings 0.55s var(--ease-out),
-    letter-spacing 0.55s var(--ease-out);
+  transition: letter-spacing 0.55s var(--ease-out), opacity 0.4s var(--ease-out);
 }
 
-/* Oversized editorial display. Optical size rises with the type. */
+/* Oversized editorial display. */
 .display {
   font-family: var(--font-display);
-  font-variation-settings: "wght" 600, "SOFT" 30, "WONK" 1, "opsz" 144;
-  font-size: clamp(2.6rem, 9vw, 8.5rem);
-  line-height: 0.92;
-  letter-spacing: -0.025em;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 7.5vw, 6.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
   text-transform: lowercase;
   text-wrap: balance;
 }
 
-/* A step down from display. Section headings that are not the loudest thing. */
+/* A step down. Section headings that are not the loudest thing. */
 .heading {
   font-family: var(--font-display);
-  font-variation-settings: "wght" 600, "SOFT" 25, "WONK" 1, "opsz" 96;
-  font-size: clamp(1.9rem, 4.6vw, 4rem);
-  line-height: 1;
-  letter-spacing: -0.02em;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3.4vw, 2.9rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   text-transform: lowercase;
 }
 
-/* The accent. Used for a handful of moments, never for information. */
-.script {
-  font-family: var(--font-accent);
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: 0;
-}
-
-/* The quiet voice. Metadata, captions, labels, clocks. */
+/* The quiet voice. Navigation, metadata, captions, labels, clocks, numbers. */
 .label {
   font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  font-weight: 400;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-soft);
   line-height: 1.4;
+  font-feature-settings: "tnum" 1;
 }
 
+/* Editorial reading size, set in the serif. */
 .lede {
   font-family: var(--font-display);
-  font-variation-settings: "wght" 400, "SOFT" 40, "WONK" 0, "opsz" 72;
-  font-size: clamp(1.3rem, 2.4vw, 2rem);
-  line-height: 1.32;
-  letter-spacing: -0.012em;
+  font-weight: 400;
+  font-size: clamp(1.35rem, 2.3vw, 2.05rem);
+  line-height: 1.38;
+  letter-spacing: -0.005em;
   text-wrap: pretty;
 }
 
 .body-copy {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
-  line-height: 1.68;
-  color: var(--ink-soft);
+  font-size: clamp(1.05rem, 1.25vw, 1.2rem);
+  line-height: 1.58;
+  color: var(--ink);
   text-wrap: pretty;
+}
+
+/* Running text that should sit back. */
+.body-quiet {
+  color: var(--ink-soft);
 }
 
 /* --------------------------------------------------------------------------
@@ -446,24 +448,6 @@ body {
   }
 }
 
-/* --------------------------------------------------------------------------
-   GRAIN
-   A single fixed layer over everything. Cheap, and it holds the two modes
-   together.
-   -------------------------------------------------------------------------- */
-
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  pointer-events: none;
-  opacity: var(--grain);
-  mix-blend-mode: var(--grain-blend, multiply);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-[data-mode="night"] .grain {
-  --grain-blend: screen;
-}
 
 /* --------------------------------------------------------------------------
    CURSOR
@@ -951,7 +935,307 @@ body {
   .drift {
     animation: none !important;
   }
-  .grain {
+}
+
+
+/* --------------------------------------------------------------------------
+   THE LANDING
+   One composed viewport. The navigation, the composition, the title and the
+   city row are the whole page on desktop, and it does not scroll.
+   -------------------------------------------------------------------------- */
+
+/* Only the homepage locks. Every other route scrolls normally. */
+@media (min-width: 768px) {
+  html[data-home="true"],
+  html[data-home="true"] body {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* Each slot is a fixed region of the composition. The coordinates live in the
+   component, because they are art direction rather than style. */
+.slot {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  background: var(--bg-sunk);
+  color: inherit;
+  text-decoration: none;
+  /* Only transform and opacity animate, so a swap never touches layout. */
+  transition: transform 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
+  will-change: transform;
+}
+
+/* Every project's image for this slot is mounted at once and preloaded. The
+   swap is a crossfade between layers, so nothing is ever fetched on hover. */
+.slot__layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--swap) var(--ease-soft), transform 0.9s var(--ease-out);
+  transform: scale(1.03);
+}
+
+.slot__layer[data-shown="true"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.slot__layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* The composition recedes a little while a single project takes the screen,
+   so the active world reads as foreground. */
+.stage[data-active] .slot {
+  opacity: 0.72;
+}
+.stage[data-active] .slot[data-active="true"] {
+  opacity: 1;
+  transform: scale(1.015);
+}
+
+/* --------------------------------------------------------------------------
+   THE CENTRE TITLE
+   studio arama until a project takes over, then the project name. The two
+   never occupy layout at the same time, so nothing reflows mid swap.
+   -------------------------------------------------------------------------- */
+
+.title {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 3;
+  padding-inline: var(--gutter);
+}
+
+.title__line {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Characters are individually wrapped so the change reads as type being
+   replaced rather than text being swapped. */
+.title__ch {
+  display: inline-block;
+  transition: transform 0.5s var(--ease-out), opacity 0.34s linear;
+  transition-delay: calc(var(--i, 0) * 16ms);
+  white-space: pre;
+}
+
+.title__line[data-state="out"] .title__ch {
+  opacity: 0;
+  transform: translateY(-0.42em);
+}
+
+.title__line[data-state="in"] .title__ch {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.title__line[data-state="waiting"] .title__ch {
+  opacity: 0;
+  transform: translateY(0.42em);
+}
+
+/* --------------------------------------------------------------------------
+   THE CITY ROW
+   -------------------------------------------------------------------------- */
+
+.cities {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), 1fr);
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+.cities li:last-child {
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .cities {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: var(--space-sm);
+  }
+  .cities li:nth-child(even) {
+    text-align: right;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   WORK INDEX
+   A line of type with its image beside it. Not a card.
+   -------------------------------------------------------------------------- */
+
+.index-row {
+  display: grid;
+  grid-template-columns: 2.5rem 4.5rem 1fr;
+  align-items: center;
+  gap: clamp(0.9rem, 2vw, 1.75rem);
+  padding-block: clamp(1rem, 1.8vw, 1.5rem);
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+@media (min-width: 768px) {
+  .index-row {
+    grid-template-columns: 3rem 5.5rem minmax(0, 1fr) minmax(0, 15rem) 4rem;
+  }
+}
+
+.index-row__thumb {
+  display: block;
+  overflow: hidden;
+  background: var(--bg-sunk);
+  aspect-ratio: 4 / 5;
+}
+
+.index-row__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.7s var(--ease-out);
+}
+
+.index-row:hover .index-row__thumb img,
+.index-row:focus-visible .index-row__thumb img {
+  transform: scale(1.06);
+}
+
+.index-row__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: lowercase;
+}
+
+.index-row__year {
+  text-align: right;
+}
+
+/* Below the small breakpoint the category and year would crowd the name, so
+   the row keeps only what it needs. */
+@media (max-width: 767px) {
+  .index-row__meta,
+  .index-row__year {
     display: none;
   }
+}
+
+/* The row being pointed at holds, the rest step back. */
+.index:hover .index-row {
+  opacity: 0.38;
+}
+.index .index-row:hover,
+.index .index-row:focus-visible {
+  opacity: 1;
+}
+
+
+/* --------------------------------------------------------------------------
+   SLOT GEOMETRY
+   Positions come from the component as percentages of the stage, so the
+   composition keeps its proportions at any width instead of being rebuilt at
+   breakpoints. Height is derived from width and a ratio, which is what keeps
+   the crops art directed rather than accidental.
+   -------------------------------------------------------------------------- */
+
+.slot {
+  left: var(--mx);
+  top: var(--my);
+  height: var(--mh);
+  aspect-ratio: 1 / var(--mratio);
+  /* A guard for very short, wide viewports, where a height driven box could
+     otherwise grow wider than its share of the composition. */
+  max-width: 44vw;
+  transform: translate3d(var(--px, 0), var(--py, 0), 0);
+}
+
+@media (min-width: 768px) {
+  .slot {
+    left: var(--x);
+    top: var(--y);
+    height: var(--h);
+    max-width: 26vw;
+  }
+}
+
+/* The composition settles in on first load. Quiet, and it happens once. */
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.slot {
+  animation: settle 0.85s var(--ease-out) both;
+  animation-delay: calc(var(--n, 0) * 70ms + 60ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot {
+    animation: none;
+  }
+  /* Without motion the swap still happens, it simply does not travel. */
+  .slot__layer {
+    transform: none;
+    transition: opacity 0.2s linear;
+  }
+  .title__ch {
+    transition: opacity 0.2s linear;
+    transition-delay: 0ms;
+  }
+  .title__line[data-state="out"] .title__ch,
+  .title__line[data-state="waiting"] .title__ch {
+    transform: none;
+  }
+}
+
+/* The city row sits over the composition, so it carries its own ground to
+   stay legible if an image ever reaches the bottom of the stage. */
+.city-bar {
+  position: relative;
+}
+.city-bar::before {
+  content: "";
+  position: absolute;
+  /* No bottom overhang: it would push the stage past 100svh and introduce a
+     sliver of scroll on the one page that must not scroll. */
+  inset: -2.5rem 0 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 42%,
+    color-mix(in srgb, var(--bg) 70%, transparent) 72%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.city-bar > * {
+  position: relative;
 }

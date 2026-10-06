@@ -15,20 +15,20 @@ export const site = {
     instagram: { label: "Instagram", handle: "@studioarama", url: "https://www.instagram.com/studioarama" },
     linkedin: { label: "LinkedIn", handle: "Studio Arama", url: "https://www.linkedin.com/company/studio-arama/" },
   },
-  /**
-   * Navigation. Work is a page of its own, the other two are places on the
-   * homepage. Editorial labels, never Home / About / Services / Contact.
-   */
+  /** Navigation. Four routes, each a page of its own. */
   nav: [
     { label: "Work", href: "/work" },
-    { label: "Capabilities", href: "/#capabilities" },
-    { label: "Studio", href: "/#studio" },
+    { label: "About", href: "/about" },
+    { label: "Capabilities", href: "/capabilities" },
+    { label: "Contact", href: "/contact" },
   ],
-  cta: { label: "Start a Project", href: "/#start" },
   /**
-   * The studio's working world. Not a claim of offices, a claim of hours.
-   * Ordered west to east, so the row reads as the day travelling.
-   * IANA zone names, resolved live by Intl.
+   * The studio's hours, not a claim of offices. Ordered west to east so the
+   * row reads as the day travelling.
+   *
+   * NOTE: the brief asked for the six cities already on the site. There were
+   * four. Rather than invent two more, these are the four that existed.
+   * Adding a city is one line here and the row re-spaces itself.
    */
   clocks: [
     { city: "San Francisco", zone: "America/Los_Angeles" },
@@ -42,21 +42,75 @@ export const site = {
  * Capabilities, grouped and numbered. Typography carries these, not paragraphs.
  * Title Case throughout, including the acronyms, so the column reads evenly.
  */
+/**
+ * CAPABILITIES
+ *
+ * Five groups rather than twenty service cards. The page sets these as a
+ * numbered index, so the breadth reads without anything being explained.
+ */
 export const capabilities = [
   {
     group: "Strategy",
-    items: ["Brand Strategy", "Digital Strategy", "Creative Direction", "Go To Market"],
+    items: [
+      "Brand Strategy",
+      "Creative Strategy",
+      "Research",
+      "Positioning",
+      "Cultural and Market Research",
+      "Product Strategy",
+      "Go to Market Thinking",
+      "Experience Strategy",
+    ],
   },
   {
     group: "Identity",
-    items: ["Brand Identity", "Visual Systems", "Art Direction", "Campaign Identity"],
+    items: [
+      "Brand Identity",
+      "Visual Systems",
+      "Art Direction",
+      "Logo Systems",
+      "Typography",
+      "Colour Systems",
+      "Brand Voice",
+      "Packaging",
+      "Brand Guidelines",
+    ],
   },
   {
     group: "Digital",
-    items: ["Web Design", "UX Design", "UI Design", "Development", "Digital Experiences"],
+    items: [
+      "Website Concept",
+      "Website Design",
+      "Website Development",
+      "UI and UX",
+      "Digital Art Direction",
+      "Interactive Experiences",
+      "Ecommerce",
+      "Digital Product Thinking",
+    ],
   },
   {
-    group: "Content",
-    items: ["Campaigns", "Photography", "Film", "Social", "Editorial"],
+    group: "Campaigns and Content",
+    items: [
+      "Campaign Concepts",
+      "Creative Direction",
+      "Social Campaigns",
+      "Short Form Film",
+      "Content Strategy",
+      "Photography Direction",
+      "Videography Direction",
+      "Launch Creative",
+    ],
+  },
+  {
+    group: "Production and Experience",
+    items: [
+      "Packaging Development",
+      "Print",
+      "Physical Touchpoints",
+      "Brand Experiences",
+      "Creative Production",
+      "Special Projects",
+    ],
   },
 ] as const;

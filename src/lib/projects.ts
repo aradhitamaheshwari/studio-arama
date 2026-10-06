@@ -1,214 +1,189 @@
 /**
  * PROJECT DATA
  *
- * Everything about the work lives here. Project pages, the homepage field and
- * all metadata are generated from this array, so adding real work means adding
- * an object, never building a new page.
+ * The single source of truth for the work. The landing composition, the work
+ * index and the project pages all read from here, so a project is described
+ * once and appears everywhere.
  *
- * The entries below are PLACEHOLDERS. They carry `placeholder: true`, neutral
- * names and no client names, because nothing here is real studio work yet.
+ * IMAGES
+ * `src` is the full resolution file, used on project pages. `thumb` is the
+ * smaller variant the landing composition uses, so all five project worlds can
+ * be held in memory at once and hover swaps are instant with nothing to fetch.
  *
- * TO ADD A REAL PROJECT
- *   1. Drop images in /public/images/<slug>/
- *   2. Set `cover.src` and give each `media` entry a `src`
- *   3. Write the real `overview` (seven or eight lines)
- *   4. Remove `placeholder: true`
- * Any entry without a `src` renders generated artwork in its place, so the
- * layout is designed and testable before the photography exists.
+ * TO ADD A PROJECT
+ *   1. Put images in /public/images/<slug>/ and /public/images/<slug>/thumb/
+ *   2. Add an entry below with at least five images
+ * Nothing else needs touching. The composition assigns slots automatically.
+ *
+ * TO FILL IN
+ *   `year` is empty on every project because inventing dates for real client
+ *   work would be making things up. Set it and it appears in the index and on
+ *   the project page. Left empty, it is quietly omitted.
  */
 
-/** How a piece of media sits on the page. Drives the editorial rhythm. */
-export type MediaKind =
-  | "full" // edge to edge, full bleed
-  | "wide" // large, inset
-  | "portrait" // tall, offset
-  | "square"
-  | "narrow" // small, lots of air around it
-  | "pair"; // two side by side
-
-export type Media = {
-  kind: MediaKind;
-  /** Omit while the real asset does not exist yet. */
-  src?: string;
+export type ProjectImage = {
+  src: string;
+  thumb: string;
   alt: string;
-  caption?: string;
+  /** CSS object-position. Set it where the subject is not centred. */
+  position?: string;
+  /** Intrinsic size, so nothing shifts while loading. */
+  w: number;
+  h: number;
 };
 
 export type Project = {
   slug: string;
   name: string;
-  /** Real client name once the work is real. "Sample" while placeholder. */
-  client: string;
+  /** What the work was. Describes the discipline, never a claimed outcome. */
+  category: string;
+  /** Optional. Empty until the real dates are filled in. */
   year: string;
-  /** Capabilities used. Doubles as project page metadata. */
-  types: string[];
-  timeline: string;
-  /** Seven to eight lines of editorial prose. */
-  overview: string;
-  /** A closing line for the project page. */
-  closing?: string;
-  cover?: { src: string; alt: string };
-  media: Media[];
-  /** Accent used for this project's transition and page details. */
-  accent: "red" | "green" | "ink";
-  /** Which generated artwork to draw while there is no photography. 0 to 5. */
-  variant: number;
-  /** How the tile behaves on hover. Curated per project, never uniform. */
-  behaviour: "zoom" | "swap" | "expand" | "slide";
-  /** Desktop field composition. x/y are % of the field, w is vw. */
-  field: { x: number; y: number; w: number; depth: number; ratio: number };
-  placeholder?: boolean;
+  /** One line, used in the index and under the project title. */
+  summary: string;
+  /** Two or three short paragraphs. */
+  overview: string[];
+  /** Disciplines, listed on the project page. */
+  disciplines: string[];
+  images: ProjectImage[];
 };
 
-const PLACEHOLDER_OVERVIEW =
-  "Placeholder overview. This is the slot where the story of the project goes, written as seven or eight lines of plain editorial prose. Enough room to say what the work was, who it was for, and what it had to do. Short sentences carry more weight here than long ones. Specific detail beats description. The images do most of the talking on this page, so the writing can stay quiet and precise underneath them. Replace this text in src/lib/projects.ts when the real work is ready to show.";
-
-const placeholderMedia = (name: string): Media[] => [
-  { kind: "full", alt: `${name}, opening image` },
-  { kind: "pair", alt: `${name}, detail` },
-  { kind: "pair", alt: `${name}, detail` },
-  { kind: "portrait", alt: `${name}, portrait format image` },
-  { kind: "wide", alt: `${name}, wide format image`, caption: "Caption sits here, small and quiet." },
-  { kind: "narrow", alt: `${name}, small detail` },
-  { kind: "full", alt: `${name}, closing image` },
-];
+const img = (
+  slug: string,
+  file: string,
+  alt: string,
+  w: number,
+  h: number,
+  position?: string,
+): ProjectImage => ({
+  src: `/images/${slug}/${file}`,
+  thumb: `/images/${slug}/thumb/${file}`,
+  alt,
+  position,
+  w,
+  h,
+});
 
 export const projects: Project[] = [
   {
-    slug: "project-one",
-    name: "Project One",
-    client: "Sample",
-    year: "2026",
-    types: ["Brand identity", "Art direction", "Web design"],
-    timeline: "Twelve weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project One"),
-    accent: "red",
-    variant: 0,
-    behaviour: "zoom",
-    field: { x: 5, y: 0, w: 30, depth: 0.55, ratio: 0.78 },
-    placeholder: true,
+    slug: "siren",
+    name: "Siren",
+    category: "Identity, Spatial, Art Direction",
+    year: "",
+    summary: "A wellness space built around quiet, weight and green stone.",
+    overview: [
+      "Siren is a movement and wellness space. The identity sits low and still, built on a high contrast serif that holds its nerve at small sizes and reads as architecture at large ones.",
+      "The palette comes out of the rooms themselves. Deep green, wet stone, timber, and very little else. Light does most of the decorating, so the graphic layer stays out of the way.",
+      "The system was drawn to work on a wall before it works on a screen, which is usually the right order for a space people walk into.",
+    ],
+    disciplines: ["Brand Identity", "Art Direction", "Spatial Graphics", "Typography"],
+    images: [
+      img("siren", "01.jpg", "Siren campaign image, a figure lit in warm orange", 1125, 1500),
+      img("siren", "02.jpg", "Siren interior in low red light", 1500, 1125),
+      img("siren", "03.jpg", "Siren interior, deep red", 1200, 1500),
+      img("siren", "04.jpg", "Siren studio interior with the wordmark set into the wall", 1300, 1500, "center top"),
+      img("siren", "05.jpg", "The Siren wordmark cut into stone", 1500, 1141),
+    ],
   },
   {
-    slug: "project-two",
-    name: "Project Two",
-    client: "Sample",
-    year: "2026",
-    types: ["Digital experience", "Development"],
-    timeline: "Eight weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project Two"),
-    accent: "ink",
-    variant: 1,
-    behaviour: "swap",
-    field: { x: 42, y: 6, w: 15, depth: 1.2, ratio: 1 },
-    placeholder: true,
+    slug: "alt-five",
+    name: "Alt Five",
+    category: "Identity, Campaign, Art Direction",
+    year: "",
+    summary: "Performance nutrition with the volume turned up.",
+    overview: [
+      "Alt Five is a performance nutrition range built for people who run in groups, at night, in cities. The identity had to work on a sachet held at arm's length and on a road at speed, which are very different distances.",
+      "The photography leans into motion rather than trying to freeze it, so it stays blurred and the graphic layer does the holding. A single acid green runs through all of it and acts as a marker: on the road, on the bottle, on the type.",
+      "The packaging keeps its information tight and legible while the campaign stays loud, because one is read in a hand and the other is read in public.",
+    ],
+    disciplines: ["Brand Identity", "Campaign", "Art Direction", "Photography Direction"],
+    images: [
+      img("alt-five", "01.jpg", "The Alt Five wordmark above the product range", 1500, 1125),
+      img("alt-five", "02.jpg", "Runners in motion with the Alt Five graphic marking the road", 1202, 1500),
+      img("alt-five", "03.jpg", "An Alt Five drink, amber liquid behind the wordmark", 1200, 1500),
+      img("alt-five", "04.jpg", "The Alt Five wordmark over a running figure", 1218, 1500),
+      img("alt-five", "05.jpg", "Alt Five sachets, front and back", 1178, 1500),
+    ],
   },
   {
-    slug: "project-three",
-    name: "Project Three",
-    client: "Sample",
-    year: "2025",
-    types: ["Campaign", "Film", "Creative direction"],
-    timeline: "Six weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project Three"),
-    accent: "green",
-    variant: 2,
-    behaviour: "expand",
-    field: { x: 70, y: 2, w: 26, depth: 0.7, ratio: 1.4 },
-    placeholder: true,
+    slug: "bar-57",
+    name: "Bar 57",
+    category: "Identity, Packaging, Art Direction",
+    year: "",
+    summary: "A bar identity that behaves like something you pocket on the way out.",
+    overview: [
+      "Bar 57 is a late room, so the identity was drawn for low light. Oxblood on bone, brushed steel, and a wordmark with enough wobble in it to feel hand cut rather than specified.",
+      "Most of the work lives on small objects. Matches, coasters, menus, the things that leave with people and turn up in a coat pocket weeks later.",
+      "It is a hospitality identity that assumes the room is already good and the graphics only need to keep up.",
+    ],
+    disciplines: ["Brand Identity", "Packaging", "Art Direction", "Print"],
+    images: [
+      img("bar-57", "01.jpg", "Bar 57 matchbox on brushed steel", 1250, 1500),
+      img("bar-57", "02.jpg", "A Bar 57 menu card beside a cocktail", 1200, 1500),
+      img("bar-57", "03.jpg", "A Bar 57 cocktail resting on a turntable", 1124, 1500),
+      img("bar-57", "04.jpg", "A Bar 57 table setting", 1200, 1500),
+      img("bar-57", "05.jpg", "The Bar 57 sign in warm light", 1200, 1500),
+      img("bar-57", "06.jpg", "The Bar 57 wordmark in low light", 1199, 1500),
+    ],
   },
   {
-    slug: "project-four",
-    name: "Project Four",
-    client: "Sample",
-    year: "2025",
-    types: ["Brand strategy", "Visual systems"],
-    timeline: "Sixteen weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project Four"),
-    accent: "red",
-    variant: 3,
-    behaviour: "slide",
-    field: { x: 78, y: 26, w: 30, depth: 0.5, ratio: 0.85 },
-    placeholder: true,
+    slug: "brew-bazaar",
+    name: "Brew Bazaar",
+    category: "Identity, Packaging, Illustration",
+    year: "",
+    summary: "Indian coffee, packed like something you would keep the box of.",
+    overview: [
+      "Brew Bazaar is an Indian coffee marketplace. The packaging borrows from the visual culture it comes out of: matchbox labels, tea chest stencils, stamp lithography, the tiger and the elephant doing what they have always done on Indian packaging.",
+      "Every box is a full illustration rather than a logo on a colour. The range is held together by structure and type, which leaves the colour free to change shelf by shelf.",
+      "It is maximal on purpose. Restraint would have been the wrong instinct for a product sold in a market.",
+    ],
+    disciplines: ["Brand Identity", "Packaging", "Illustration", "Art Direction"],
+    images: [
+      img("brew-bazaar", "01.jpg", "Brew Bazaar packaging in red and yellow", 1500, 965),
+      img("brew-bazaar", "02.jpg", "Brew Bazaar coffee boxes among hibiscus", 1200, 1500),
+      img("brew-bazaar", "03.jpg", "Brew Bazaar coffee box, portrait", 1200, 1500),
+      img("brew-bazaar", "04.jpg", "Brew Bazaar burlap sack, product of India", 1323, 1500),
+      img("brew-bazaar", "05.jpg", "Indian chai shop, Brew Bazaar in context", 1200, 1500),
+      img("brew-bazaar", "06.jpg", "Brew Bazaar vintage stamp illustrations", 1000, 1500),
+    ],
   },
   {
-    slug: "project-five",
-    name: "Project Five",
-    client: "Sample",
-    year: "2025",
-    types: ["UX", "UI", "Development"],
-    timeline: "Ten weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project Five"),
-    accent: "ink",
-    variant: 4,
-    behaviour: "zoom",
-    field: { x: 8, y: 34, w: 22, depth: 1, ratio: 1.5 },
-    placeholder: true,
-  },
-  {
-    slug: "project-six",
-    name: "Project Six",
-    client: "Sample",
-    year: "2024",
-    types: ["Editorial", "Photography"],
-    timeline: "Four weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project Six"),
-    accent: "green",
-    variant: 5,
-    behaviour: "swap",
-    field: { x: 33, y: 47, w: 13, depth: 0.9, ratio: 0.75 },
-    placeholder: true,
-  },
-  {
-    slug: "project-seven",
-    name: "Project Seven",
-    client: "Sample",
-    year: "2024",
-    types: ["Digital strategy", "Go to market"],
-    timeline: "Nine weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project Seven"),
-    accent: "red",
-    variant: 1,
-    behaviour: "expand",
-    field: { x: 55, y: 60, w: 31, depth: 0.75, ratio: 1.6 },
-    placeholder: true,
-  },
-  {
-    slug: "project-eight",
-    name: "Project Eight",
-    client: "Sample",
-    year: "2024",
-    types: ["Creative technology", "Digital experience"],
-    timeline: "Seven weeks",
-    overview: PLACEHOLDER_OVERVIEW,
-    closing: "A closing thought goes here. One line. Then the next project.",
-    media: placeholderMedia("Project Eight"),
-    accent: "ink",
-    variant: 3,
-    behaviour: "slide",
-    field: { x: 6, y: 76, w: 25, depth: 0.6, ratio: 0.9 },
-    placeholder: true,
+    slug: "akhai-beauty",
+    name: "Akhai",
+    category: "Identity, Packaging, Art Direction",
+    year: "",
+    summary: "Heritage beauty, gold tubes, and a lip treatment named for a rose.",
+    overview: [
+      "Akhai is a beauty line drawn from Indian heritage ingredients. Gulaab, the rose, carries the first product, and the naming across the range stays in that language rather than translating itself for export.",
+      "The packaging is gold, soft and warm rather than metallic and cold, with a script wordmark that keeps the whole thing personal at a shelf distance.",
+      "The art direction was kept close and tactile. Product, skin, light, nothing else competing.",
+    ],
+    disciplines: ["Brand Identity", "Packaging", "Art Direction", "Typography"],
+    images: [
+      img("akhai-beauty", "01.jpg", "An Akhai gift set, gold tubes in a printed box", 1200, 1500),
+      img("akhai-beauty", "02.jpg", "The Akhai range, gold tubes and packaging", 1200, 1500),
+      img("akhai-beauty", "03.jpg", "Akhai gold lip treatment trio", 1200, 1500),
+      img("akhai-beauty", "04.jpg", "Akhai branding cards in maroon", 844, 1500),
+      img("akhai-beauty", "05.jpg", "A model holding the Akhai gold tube", 1200, 1500, "center top"),
+    ],
   },
 ];
 
 export const getProject = (slug: string) => projects.find((p) => p.slug === slug);
 
-/** Wraps around, so the end of the work loops back into the beginning. */
 export const getNextProject = (slug: string) => {
   const i = projects.findIndex((p) => p.slug === slug);
-  if (i === -1) return projects[0];
   return projects[(i + 1) % projects.length];
 };
+
+/** How many image positions the landing composition holds. */
+export const SLOT_COUNT = 5;
+
+/**
+ * The composition shows one image from each project in its resting state, then
+ * swaps every slot to a single project on hover. Each slot therefore needs one
+ * image from every project. Projects with more images contribute their first
+ * five; a project with fewer would wrap rather than leave a hole.
+ */
+export const slotImage = (project: Project, slot: number): ProjectImage =>
+  project.images[slot % project.images.length];

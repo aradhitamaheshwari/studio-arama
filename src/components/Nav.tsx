@@ -175,30 +175,21 @@ export default function Nav() {
             studio arama
           </Link>
 
-          {/* Middle: where to go. */}
-          <div className="hidden items-center gap-9 md:flex">
+          {/* Right: where to go, then the two controls, quietly. */}
+          <div className="hidden items-center gap-8 md:flex">
             {site.nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="nav-link text-[0.82rem] tracking-[0.02em]"
+                className="nav-link text-[0.78rem] tracking-[0.02em]"
                 {...region(item.href)}
               >
                 {item.label}
               </Link>
             ))}
-          </div>
 
-          {/* Right: the invitation, then the two controls. */}
-          <div className="hidden items-center gap-5 md:flex">
-            <Link
-              href={site.cta.href}
-              className="nav-link text-[0.82rem] tracking-[0.02em]"
-              {...region("cta")}
-            >
-              {site.cta.label}
-            </Link>
-            <span className="h-4 w-px bg-line" aria-hidden="true" />
+            <span className="h-3 w-px bg-line" aria-hidden="true" />
+
             <div className="flex items-center gap-1" {...region("controls")}>
               <ControlButton
                 label={enabled ? "Turn sound off" : "Turn sound on"}
@@ -257,7 +248,7 @@ export default function Nav() {
         aria-hidden={!open}
       >
         <ul className="flex flex-col gap-3">
-          {[...site.nav, site.cta].map((item, i) => (
+          {site.nav.map((item, i) => (
             <li key={item.href}>
               <Link
                 href={item.href}

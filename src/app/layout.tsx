@@ -1,62 +1,51 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Sora, Pinyon_Script } from "next/font/google";
+import { EB_Garamond, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import ModeProvider, { modeScript } from "@/components/ModeProvider";
 import SoundProvider from "@/components/SoundProvider";
 import Cursor from "@/components/Cursor";
 import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import SiteFooter from "@/components/SiteFooter";
 import RevealObserver from "@/components/RevealObserver";
 import ScrollMotion from "@/components/ScrollMotion";
 import { site } from "@/lib/site";
 
 /**
- * THREE TYPEFACES, THREE JOBS
+ * TWO TYPEFACES
  *
- * Fraunces is the primary voice: headings, the name, project titles. It is
- * variable on optical size, weight, softness and WONK, so the display type can
- * shift character with scale instead of being one frozen shape.
+ * The brief asks for JJannon Regular and Public Text Mono. Neither is in the
+ * supplied asset folder, installed on this machine, or published on Google
+ * Fonts, so rather than fall back to a generic sans each has a stand in chosen
+ * from the same lineage:
  *
- * Sora is the secondary voice: body copy, navigation, metadata, buttons.
- * Geometric and quiet, so it never competes with Fraunces.
+ *   EB Garamond  stands in for JJannon. JJannon revives Jean Jannon's types,
+ *                which is the tradition EB Garamond is drawn from, so the
+ *                colour on the page and the old style proportions are close.
+ *   IBM Plex Mono stands in for Public Text Mono, covering the functional role:
+ *                navigation, metadata, numbers, labels, clocks.
  *
- * The accent is used sparingly, for the few moments that want a human hand.
- *
- * NOTE ON THE ACCENT FACE
- * The brief asks for Cordier Script. It is not on Google Fonts and no licensed
- * file exists in this project, so Pinyon Script stands in at the same size and
- * role. To swap it, drop the licensed file in src/app/fonts, replace this one
- * declaration with a localFont pointing at it, and keep the CSS variable name.
- * Nothing else in the site refers to the accent face by name.
+ * To swap in the licensed files, drop them in src/app/fonts, replace these two
+ * declarations with next/font/local, and keep the variable names. No component
+ * names a typeface directly.
  */
-const fraunces = Fraunces({
+const serif = EB_Garamond({
   subsets: ["latin"],
-  axes: ["SOFT", "WONK", "opsz"],
   style: ["normal", "italic"],
-  variable: "--font-fraunces",
+  variable: "--font-serif-stack",
   display: "swap",
 });
 
-const sora = Sora({
+const mono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-sora",
-  display: "swap",
-});
-
-const accent = Pinyon_Script({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-script",
+  weight: ["400", "500"],
+  variable: "--font-mono-stack",
   display: "swap",
 });
 
 /**
- * Canonical and Open Graph URLs resolve against this.
- *
- * Until studioarama.com is pointed at the deployment, falling back to it would
- * make every canonical URL claim a site that is not there yet. On Vercel,
- * VERCEL_URL names the deployment actually serving the page, so that wins
- * unless a real site URL has been set explicitly.
+ * Canonical and Open Graph URLs resolve against this. Until studioarama.com is
+ * pointed at the deployment, VERCEL_URL or the Pages URL names where the site
+ * actually is, so canonicals never claim an address that is not serving.
  */
 const resolvedUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -98,7 +87,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${sora.variable} ${accent.variable}`}
+      className={`${serif.variable} ${mono.variable}`}
       // Tells the router the smooth scrolling is deliberate, so it suppresses
       // it during route changes instead of gliding between pages.
       data-scroll-behavior="smooth"
@@ -117,8 +106,7 @@ export default function RootLayout({
             <Cursor />
             <Nav />
             <main id="main">{children}</main>
-            <Footer />
-            <div className="grain" aria-hidden="true" />
+            <SiteFooter />
             <RevealObserver />
             <ScrollMotion />
           </SoundProvider>
