@@ -48,6 +48,14 @@ export type Project = {
   images: ProjectImage[];
 };
 
+/**
+ * Asset paths must carry the deployment's base path. next/link and next/image
+ * get it applied for them; a plain img tag does not, and these are plain img
+ * tags because a static export has no image optimiser behind it. Applying it
+ * here means every consumer gets a correct URL without thinking about it.
+ */
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 const img = (
   slug: string,
   file: string,
@@ -56,8 +64,8 @@ const img = (
   h: number,
   position?: string,
 ): ProjectImage => ({
-  src: `/images/${slug}/${file}`,
-  thumb: `/images/${slug}/thumb/${file}`,
+  src: `${BASE}/images/${slug}/${file}`,
+  thumb: `${BASE}/images/${slug}/thumb/${file}`,
   alt,
   position,
   w,

@@ -21,8 +21,16 @@ const nextConfig: NextConfig = isPages
       // are. Only relevant once real photography replaces the drawn artwork.
       images: { unoptimized: true },
       // Every route becomes a folder with an index.html, which is how a static
-      // host resolves /work/project-one without a rewrite rule.
+      // host resolves /work/siren without a rewrite rule.
       trailingSlash: true,
+      /**
+       * Next rewrites basePath into next/link and next/image on its own, but
+       * not into a plain <img src>. The project imagery is served through
+       * ordinary img tags, because there is no optimiser behind a static
+       * export, so the prefix has to reach them some other way. Exposing it
+       * here lets the project data build correct paths in one place.
+       */
+      env: { NEXT_PUBLIC_BASE_PATH: "/studio-arama" },
     }
   : {};
 
