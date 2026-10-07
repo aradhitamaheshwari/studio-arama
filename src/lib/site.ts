@@ -18,8 +18,8 @@ export const site = {
   /** Navigation. Four routes, each a page of its own. */
   nav: [
     { label: "Work", href: "/work" },
-    { label: "About", href: "/about" },
     { label: "Capabilities", href: "/capabilities" },
+    { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ],
   /**

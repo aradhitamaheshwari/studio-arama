@@ -439,16 +439,6 @@ body {
   transform: scaleX(1);
 }
 
-@keyframes sound-bar {
-  from {
-    transform: scaleY(0.55);
-  }
-  to {
-    transform: scaleY(1.25);
-  }
-}
-
-
 /* --------------------------------------------------------------------------
    CURSOR
    Desktop only. Never hides an interaction cue.
@@ -962,20 +952,120 @@ body {
 
 /* Each slot is a fixed region of the composition. The coordinates live in the
    component, because they are art direction rather than style. */
-.slot {
-  position: absolute;
-  display: block;
-  overflow: hidden;
-  background: var(--bg-sunk);
-  color: inherit;
-  text-decoration: none;
-  /* Only transform and opacity animate, so a swap never touches layout. */
-  transition: transform 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
-  will-change: transform;
+/*
+  REGISTERING THE COMPOSITION PROPERTIES
+
+  A slot's position and size are carried in custom properties, read inside
+  transform and calc. An unregistered custom property is an untyped token, so
+  the browser can only swap one value for another: transform would cut straight
+  to the new position rather than travelling to it.
+
+  Registering them as lengths makes them real animatable values. The transition
+  below runs on the properties themselves, and transform and width simply read
+  whatever they currently are, so a slot glides to its position in the next
+  composition and resizes to that picture's proportions in the same movement.
+*/
+@property --tx {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --ty {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --h {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --mtx {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --mty {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --mh {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --aspect {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+@property --px {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --py {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
 }
 
-/* Every project's image for this slot is mounted at once and preloaded. The
-   swap is a crossfade between layers, so nothing is ever fetched on hover. */
+.slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+
+  /*
+    The height comes from the composition and the width from the picture, so
+    the container is always exactly the image's own shape. Nothing is ever
+    cropped to fit a frame, because the frame is built from the frame of the
+    photograph.
+  */
+  /*
+    Width is capped and the height follows from it, rather than the other way
+    round. Driving height first meant a landscape picture derived a width wider
+    than its share of the screen, hit the cap, and then sat letterboxed inside a
+    box that no longer matched it. This way the ratio is honoured whichever
+    constraint binds: a wide picture simply gets shorter.
+  */
+  width: min(calc(var(--mh) * var(--aspect)), 44vw);
+  aspect-ratio: var(--aspect);
+  height: auto;
+
+  /*
+    Position is a transform rather than left and top, so moving between
+    project compositions is a compositor job. Parallax is added into the same
+    transform so the two never fight over the property.
+  */
+  transform: translate3d(
+    calc(var(--mtx) + var(--px, 0px)),
+    calc(var(--mty) + var(--py, 0px)),
+    0
+  );
+  transition: --mtx 0.85s var(--ease-out), --mty 0.85s var(--ease-out),
+    --mh 0.85s var(--ease-out), --tx 0.85s var(--ease-out),
+    --ty 0.85s var(--ease-out), --h 0.85s var(--ease-out),
+    --aspect 0.85s var(--ease-out), opacity 0.6s var(--ease-out);
+}
+
+@media (min-width: 768px) {
+  .slot {
+    width: min(calc(var(--h) * var(--aspect)), 30vw);
+    aspect-ratio: var(--aspect);
+    height: auto;
+    transform: translate3d(
+      calc(var(--tx) + var(--px, 0px)),
+      calc(var(--ty) + var(--py, 0px)),
+      0
+    );
+  }
+}
+
 .slot__layer {
   position: absolute;
   inset: 0;
@@ -992,19 +1082,23 @@ body {
 .slot__layer img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* The container already matches the active picture's shape, so contain and
+     cover agree on it. Contain is what matters during a swap, when the
+     outgoing picture is briefly inside the incoming one's frame: it letterboxes
+     for a moment instead of cropping. */
+  object-fit: contain;
   display: block;
 }
 
-/* The composition recedes a little while a single project takes the screen,
-   so the active world reads as foreground. */
-.stage[data-active] .slot {
-  opacity: 0.72;
-}
-.stage[data-active] .slot[data-active="true"] {
-  opacity: 1;
-  transform: scale(1.015);
-}
+/*
+  There is deliberately no dimming or scaling here any more.
+
+  It made sense when one image was foregrounded against the others. Now every
+  position belongs to the active project at once, so dimming them all and then
+  undimming them all was a no op, and the scale was overwriting the transform
+  that carries each slot to its position, which pinned the whole composition in
+  place. Position is the transform, and nothing else may claim it.
+*/
 
 /* --------------------------------------------------------------------------
    THE CENTRE TITLE
@@ -1112,7 +1206,9 @@ body {
 .index-row__thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* Every cover is currently portrait and close to this box, so nothing is cut
+     either way. Contain keeps it that way if a landscape cover is ever chosen. */
+  object-fit: contain;
   display: block;
   transition: transform 0.7s var(--ease-out);
 }
@@ -1161,35 +1257,15 @@ body {
    the crops art directed rather than accidental.
    -------------------------------------------------------------------------- */
 
-.slot {
-  left: var(--mx);
-  top: var(--my);
-  height: var(--mh);
-  aspect-ratio: 1 / var(--mratio);
-  /* A guard for very short, wide viewports, where a height driven box could
-     otherwise grow wider than its share of the composition. */
-  max-width: 44vw;
-  transform: translate3d(var(--px, 0), var(--py, 0), 0);
-}
-
-@media (min-width: 768px) {
-  .slot {
-    left: var(--x);
-    top: var(--y);
-    height: var(--h);
-    max-width: 26vw;
-  }
-}
-
 /* The composition settles in on first load. Quiet, and it happens once. */
+/* Opacity only. The slot's transform now carries its position, so animating
+   transform here would drag the whole composition to the origin on load. */
 @keyframes settle {
   from {
     opacity: 0;
-    transform: translate3d(0, 14px, 0) scale(0.985);
   }
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 

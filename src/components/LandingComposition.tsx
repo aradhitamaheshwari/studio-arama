@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { projects, slotImage } from "@/lib/projects";
+import { projects, slotImage, REST_LAYOUT } from "@/lib/projects";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import CentreTitle from "./CentreTitle";
 
@@ -27,50 +27,22 @@ import CentreTitle from "./CentreTitle";
  * across widths instead of being re-laid out at breakpoints.
  */
 
-type Slot = {
-  /** Horizontal position and vertical position, as percentages of the stage. */
-  x: number;
-  y: number;
-  /**
-   * Height, in percent of the stage height. Width is derived from it and the
-   * ratio.
-   *
-   * Sizing from the height rather than the width is what keeps the
-   * composition honest: the slots are positioned down the screen in percent of
-   * height, so if they were sized from the width they would grow relative to a
-   * short viewport and collide. Driving both from the same axis means the
-   * composition holds its shape at any proportion.
-   */
-  h: number;
-  /** Height divided by width. Above one is a portrait crop. */
-  ratio: number;
-  /** How far this position drifts from the pointer. Builds depth. */
-  depth: number;
-};
-
 /**
- * The composition. Asymmetric, weighted left and right of a clear central
- * band so the title always has air, with nothing crossing the type.
+ * Mobile keeps one arrangement. A phone has no room to move five pictures
+ * around without them colliding, so there the swap changes the imagery and
+ * leaves the positions alone. Desktop gets a composition per project, which
+ * is where the space to rearrange actually exists.
  */
-const SLOTS: Slot[] = [
-  { x: 3, y: 15, h: 34, ratio: 1.3, depth: 0.5 },
-  { x: 21.5, y: 60, h: 27, ratio: 1.25, depth: 1.1 },
-  { x: 42, y: 6, h: 22, ratio: 0.82, depth: 0.75 },
-  { x: 62.5, y: 60, h: 27, ratio: 1.2, depth: 0.95 },
-  { x: 79, y: 17, h: 25, ratio: 0.85, depth: 0.6 },
+const MOBILE_SLOTS = [
+  { x: 4, y: 11, h: 19 },
+  { x: 44, y: 8, h: 18 },
+  { x: 71, y: 27, h: 14 },
+  { x: 6, y: 62, h: 19 },
+  { x: 48, y: 66, h: 18 },
 ];
 
-/**
- * Mobile recomposes rather than shrinking: five smaller images, three above
- * the title and two below, with the same clear band kept through the middle.
- */
-const MOBILE_SLOTS: Slot[] = [
-  { x: 4, y: 11, h: 19, ratio: 1.25, depth: 0 },
-  { x: 44, y: 8, h: 18, ratio: 1.3, depth: 0 },
-  { x: 71, y: 27, h: 14, ratio: 1.2, depth: 0 },
-  { x: 6, y: 62, h: 19, ratio: 1.2, depth: 0 },
-  { x: 48, y: 66, h: 18, ratio: 1.25, depth: 0 },
-];
+/** How far each position drifts from the pointer. Builds depth. */
+const DEPTH = [0.5, 1.1, 0.75, 0.95, 0.6];
 
 export default function LandingComposition() {
   // Which project owns the screen. Null is the mixed, resting state.
@@ -159,31 +131,37 @@ export default function LandingComposition() {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setActive(null);
       }}
     >
-      {SLOTS.map((slot, i) => {
+      {REST_LAYOUT.map((_, i) => {
         // At rest each position belongs to a different project, so the first
         // thing anyone sees is the range of the studio.
         const resting = projects[i % projects.length];
         const owner = activeProject ?? resting;
         const mob = MOBILE_SLOTS[i];
 
+        // Position comes from whichever world currently holds the screen, and
+        // the shape comes from the picture that is in it. Between them, moving
+        // to another project rearranges the composition rather than swapping
+        // pictures inside fixed frames.
+        const pos = (activeProject ? activeProject.layout : REST_LAYOUT)[i];
+        const shownImage = slotImage(owner, i);
+
         return (
           <Link
             key={i}
             href={`/work/${owner.slug}`}
             className="slot"
-            data-depth={slot.depth}
+            data-depth={DEPTH[i]}
             data-active={active === owner.slug ? "true" : undefined}
             aria-label={`${owner.name}. ${owner.category}.`}
             style={
               {
-                "--x": `${slot.x}%`,
-                "--y": `${slot.y}%`,
-                "--h": `${slot.h}%`,
-                "--ratio": String(slot.ratio),
-                "--mx": `${mob.x}%`,
-                "--my": `${mob.y}%`,
-                "--mh": `${mob.h}%`,
-                "--mratio": String(mob.ratio),
+                "--tx": `${pos.x}vw`,
+                "--ty": `${pos.y}svh`,
+                "--h": `${pos.h}svh`,
+                "--aspect": String(shownImage.aspect),
+                "--mtx": `${mob.x}vw`,
+                "--mty": `${mob.y}svh`,
+                "--mh": `${mob.h}svh`,
                 "--n": i,
               } as React.CSSProperties
             }
@@ -228,7 +206,6 @@ export default function LandingComposition() {
                     loading="eager"
                     decoding="async"
                     draggable={false}
-                    style={{ objectPosition: image.position ?? "center" }}
                   />
                 </div>
               );

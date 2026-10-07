@@ -41,16 +41,19 @@ export default async function ProjectPage({ params }: Params) {
 
   return (
     <article>
-      {/* Opening image, full bleed. */}
-      <div className="relative h-[72svh] w-full overflow-hidden bg-bg-sunk md:h-[86svh]">
+      {/*
+        The opening image keeps its own proportions rather than being cut to a
+        band. It is capped at the viewport height so a tall picture cannot push
+        everything else off the screen, and centred when that cap leaves room.
+      */}
+      <div className="gutter pt-28 md:pt-32">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={opening.src}
           alt={opening.alt}
           width={opening.w}
           height={opening.h}
-          className="h-full w-full object-cover"
-          style={{ objectPosition: opening.position ?? "center" }}
+          className="mx-auto h-auto max-h-[82svh] w-auto max-w-full"
           fetchPriority="high"
         />
       </div>
@@ -88,20 +91,16 @@ export default async function ProjectPage({ params }: Params) {
       {/* The rhythm. Proportions alternate so nothing settles into a column. */}
       <div className="flex flex-col gap-[var(--space-block)] pt-[var(--space-section)]">
         {rest.map((image, i) => {
-          // Every third image runs full bleed. The rest sit inside the gutter
-          // and alternate which edge they hang from.
-          const full = i % 3 === 2;
-          const right = i % 2 === 1;
+          // Rhythm comes from how much width a picture is given and which edge
+          // it hangs from, never from recropping it. A landscape stays
+          // landscape, a portrait stays portrait, and the page gets its pace
+          // from the difference between them.
+          const wide = image.aspect > 1.2;
+          const width = wide ? "md:w-[78%]" : i % 3 === 0 ? "md:w-[46%]" : "md:w-[60%]";
+          const edge = i % 2 === 1 ? "md:ml-auto" : "md:mr-auto";
           return (
-            <figure key={image.src} className={full ? "reveal" : "gutter reveal"}>
-              <div
-                className={
-                  full
-                    ? "relative aspect-[16/9] w-full overflow-hidden bg-bg-sunk"
-                    : `relative w-full overflow-hidden bg-bg-sunk md:w-[62%] ${right ? "md:ml-auto" : ""}`
-                }
-                style={full ? undefined : { aspectRatio: `${image.w} / ${image.h}` }}
-              >
+            <figure key={image.src} className={`gutter reveal flex ${edge}`}>
+              <div className={`w-full ${width}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.src}
@@ -110,8 +109,7 @@ export default async function ProjectPage({ params }: Params) {
                   height={image.h}
                   loading="lazy"
                   decoding="async"
-                  className="h-full w-full object-cover"
-                  style={{ objectPosition: image.position ?? "center" }}
+                  className="h-auto w-full"
                 />
               </div>
             </figure>

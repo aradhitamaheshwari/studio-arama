@@ -30,7 +30,6 @@ export default function WorkIndex() {
                 height={cover.h}
                 loading={i < 2 ? "eager" : "lazy"}
                 decoding="async"
-                style={{ objectPosition: cover.position ?? "center" }}
               />
             </span>
 

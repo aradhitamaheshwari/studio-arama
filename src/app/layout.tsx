@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { EB_Garamond, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import ModeProvider, { modeScript } from "@/components/ModeProvider";
-import SoundProvider from "@/components/SoundProvider";
 import Cursor from "@/components/Cursor";
 import Nav from "@/components/Nav";
 import SiteFooter from "@/components/SiteFooter";
@@ -99,17 +98,15 @@ export default function RootLayout({
       </head>
       <body>
         <ModeProvider>
-          <SoundProvider>
-            <a href="#main" className="skip-link">
-              Skip to content
-            </a>
-            <Cursor />
-            <Nav />
-            <main id="main">{children}</main>
-            <SiteFooter />
-            <RevealObserver />
-            <ScrollMotion />
-          </SoundProvider>
+          <a href="#main" className="skip-link">
+            Skip to content
+          </a>
+          <Cursor />
+          <Nav />
+          <main id="main">{children}</main>
+          <SiteFooter />
+          <RevealObserver />
+          <ScrollMotion />
         </ModeProvider>
       </body>
     </html>

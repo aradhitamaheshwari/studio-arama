@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { site } from "@/lib/site";
 import { useMode } from "./ModeProvider";
-import { useSound } from "./SoundProvider";
 
 /**
  * THE HEADER
@@ -16,50 +15,6 @@ import { useSound } from "./SoundProvider";
  * interface appearing to break. Focus does the same thing, so the effect is
  * not reserved for people using a mouse.
  */
-
-/**
- * Bars that stand up and move when sound is on, and lie flat under a slash
- * when it is off. The slash is what makes the off state unambiguous: four
- * short bars on their own just read as dots.
- */
-function SoundIcon({ on }: { on: boolean }) {
-  const heights = on ? [7, 13, 9, 15] : [3, 3, 3, 3];
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="overflow-visible">
-      {heights.map((h, i) => (
-        <rect
-          key={i}
-          x={2 + i * 4}
-          y={9 - h / 2}
-          width="2"
-          height={h}
-          rx="1"
-          fill="currentColor"
-          style={{
-            transition: "y 0.35s var(--ease-out), height 0.35s var(--ease-out)",
-            animation: on ? `sound-bar ${0.62 + i * 0.19}s var(--ease-soft) infinite alternate` : "none",
-            transformOrigin: "center",
-          }}
-        />
-      ))}
-      <line
-        x1="2"
-        y1="15"
-        x2="16"
-        y2="3"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        style={{
-          // Drawn from one end rather than faded, so it reads as a gesture.
-          strokeDasharray: 19,
-          strokeDashoffset: on ? 19 : 0,
-          transition: "stroke-dashoffset 0.4s var(--ease-out)",
-        }}
-      />
-    </svg>
-  );
-}
 
 /**
  * A disc that a second disc slides across. Full circle for day, bitten into a
@@ -117,7 +72,6 @@ export default function Nav() {
   /** Which header region currently has attention, if any. */
   const [focus, setFocus] = useState<string | null>(null);
   const { mode, toggle: toggleMode } = useMode();
-  const { enabled, toggle: toggleSound } = useSound();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -188,16 +142,7 @@ export default function Nav() {
               </Link>
             ))}
 
-            <span className="h-3 w-px bg-line" aria-hidden="true" />
-
-            <div className="flex items-center gap-1" {...region("controls")}>
-              <ControlButton
-                label={enabled ? "Turn sound off" : "Turn sound on"}
-                pressed={enabled}
-                onClick={toggleSound}
-              >
-                <SoundIcon on={enabled} />
-              </ControlButton>
+            <div className="flex items-center" {...region("controls")}>
               <ControlButton
                 label={mode === "night" ? "Switch to day" : "Switch to night"}
                 pressed={mode === "night"}
@@ -210,13 +155,6 @@ export default function Nav() {
 
           {/* Small screens keep both controls reachable without the menu. */}
           <div className="flex items-center gap-1 md:hidden">
-            <ControlButton
-              label={enabled ? "Turn sound off" : "Turn sound on"}
-              pressed={enabled}
-              onClick={toggleSound}
-            >
-              <SoundIcon on={enabled} />
-            </ControlButton>
             <ControlButton
               label={mode === "night" ? "Switch to day" : "Switch to night"}
               pressed={mode === "night"}
