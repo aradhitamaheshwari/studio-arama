@@ -42,13 +42,28 @@ const mono = IBM_Plex_Mono({
 });
 
 /**
- * Canonical and Open Graph URLs resolve against this. Until studioarama.com is
- * pointed at the deployment, VERCEL_URL or the Pages URL names where the site
- * actually is, so canonicals never claim an address that is not serving.
+ * Canonical and Open Graph URLs resolve against this.
+ *
+ * studioarama.com is live now, so production says so. It used to fall back to
+ * VERCEL_URL, which is the per deployment address: every canonical and every
+ * link preview was pointing at a hostname like
+ * studio-arama-4xth324q0-aradhitas-projects.vercel.app, which changes on each
+ * deploy and should never be the address a search engine records.
+ *
+ * Preview deployments still describe themselves, so a branch preview cannot
+ * claim to be production. NEXT_PUBLIC_SITE_URL overrides everything, which is
+ * how the GitHub Pages build points at its own address.
  */
+const isProduction =
+  !process.env.VERCEL || process.env.VERCEL_ENV === "production";
+
 const resolvedUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : site.url);
+  (isProduction
+    ? site.url
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : site.url);
 
 export const metadata: Metadata = {
   metadataBase: new URL(resolvedUrl),
