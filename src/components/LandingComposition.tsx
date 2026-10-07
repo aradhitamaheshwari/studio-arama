@@ -64,24 +64,38 @@ export default function LandingComposition() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
-    const slots = Array.from(stage.querySelectorAll<HTMLElement>("[data-depth]"));
-    let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+    const anchors = Array.from(stage.querySelectorAll<HTMLElement>("[data-depth]"));
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0, running = false;
 
     const onMove = (e: PointerEvent) => {
       tx = (e.clientX / window.innerWidth - 0.5) * 2;
       ty = (e.clientY / window.innerHeight - 0.5) * 2;
+      // The loop sleeps when the drift has settled, so a still mouse costs
+      // nothing at all rather than a style recalculation every frame forever.
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(loop);
+      }
     };
+
     const loop = () => {
       x += (tx - x) * 0.055;
       y += (ty - y) * 0.055;
-      for (const s of slots) {
-        const d = Number(s.dataset.depth) || 0;
-        s.style.setProperty("--px", `${x * d * -16}px`);
-        s.style.setProperty("--py", `${y * d * -11}px`);
+      for (const a of anchors) {
+        const d = Number(a.dataset.depth) || 0;
+        // Written straight to transform rather than through custom properties.
+        // Going via registered properties cost about three times as much per
+        // frame, and put the parallax inside the same calc as the position that
+        // is being transitioned.
+        a.style.transform = `translate3d(${(x * d * -16).toFixed(2)}px, ${(y * d * -11).toFixed(2)}px, 0)`;
+      }
+      if (Math.abs(tx - x) < 0.001 && Math.abs(ty - y) < 0.001) {
+        running = false;
+        return;
       }
       raf = requestAnimationFrame(loop);
     };
-    raf = requestAnimationFrame(loop);
+
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => {
       cancelAnimationFrame(raf);
@@ -95,26 +109,62 @@ export default function LandingComposition() {
   );
 
   /**
-   * Which project holds the screen changes when the pointer arrives at an
-   * image, and is given up only when the pointer leaves the composition
-   * entirely.
+   * Which project holds the screen changes when the pointer settles on an
+   * image, and is given up only when the pointer leaves the composition.
    *
-   * It deliberately does not reset when the pointer merely slips off an image
-   * into the space between them. The images move when a project activates, so
-   * the one under the cursor slides away from it; resetting on that would put
-   * the composition back, slide the image under the cursor again, and start the
-   * whole thing over. That feedback loop was the flicker.
+   * The delay matters. Sweeping across the screen crosses several images, and
+   * without it each one started a full rearrangement that cut off the one
+   * before it, so the composition never finished a move. Now a pass over an
+   * image does nothing and only resting on one commits, which is what makes it
+   * feel deliberate rather than nervous.
+   *
+   * It deliberately does not reset when the pointer slips into the space
+   * between images: the images move when a project activates, so the one under
+   * the cursor slides away from it, and resetting on that would restore the
+   * composition, slide an image back under the cursor, and start over.
    */
-  const hold = useCallback((slug: string) => setActive(slug), []);
+  const INTENT_MS = 110;
+  const intent = useRef<number | null>(null);
+
+  const cancelIntent = useCallback(() => {
+    if (intent.current) {
+      window.clearTimeout(intent.current);
+      intent.current = null;
+    }
+  }, []);
+
+  const hold = useCallback(
+    (slug: string) => {
+      cancelIntent();
+      intent.current = window.setTimeout(() => setActive(slug), INTENT_MS);
+    },
+    [cancelIntent],
+  );
+
+  /** Keyboard focus is already a deliberate act, so it commits at once. */
+  const holdNow = useCallback(
+    (slug: string) => {
+      cancelIntent();
+      setActive(slug);
+    },
+    [cancelIntent],
+  );
+
+  const releaseAll = useCallback(() => {
+    cancelIntent();
+    setActive(null);
+  }, [cancelIntent]);
+
+  useEffect(() => cancelIntent, [cancelIntent]);
 
   return (
     <div
       ref={stageRef}
       className="stage"
       data-active={active ?? undefined}
-      onPointerLeave={() => setActive(null)}
+      onPointerLeave={releaseAll}
       onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setActive(null);
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) releaseAll();
       }}
     >
       {REST_LAYOUT.map((_, i) => {
@@ -132,11 +182,10 @@ export default function LandingComposition() {
         const shownImage = slotImage(owner, i);
 
         return (
+          <div key={i} className="slot-anchor" data-depth={DEPTH[i]}>
           <Link
-            key={i}
             href={`/work/${owner.slug}`}
             className="slot"
-            data-depth={DEPTH[i]}
             data-active={active === owner.slug ? "true" : undefined}
             aria-label={`${owner.name}. ${owner.category}.`}
             style={
@@ -152,7 +201,8 @@ export default function LandingComposition() {
               } as React.CSSProperties
             }
             onPointerEnter={() => !touch && hold(resting.slug)}
-            onFocus={() => hold(resting.slug)}
+            onPointerLeave={() => !touch && cancelIntent()}
+            onFocus={() => holdNow(resting.slug)}
             onClick={(e) => {
               if (e.metaKey || e.ctrlKey || e.shiftKey) return;
               // First tap reveals the project world, second opens it.
@@ -190,12 +240,20 @@ export default function LandingComposition() {
                     height={image.h}
                     loading="eager"
                     decoding="async"
+                    /*
+                      All five project worlds are still fetched up front, so a
+                      hover never waits. Only the five actually on screen are
+                      worth contending for bandwidth at load though, so the
+                      other twenty come down behind them rather than alongside.
+                    */
+                    fetchPriority={shown ? "high" : "low"}
                     draggable={false}
                   />
                 </div>
               );
             })}
           </Link>
+          </div>
         );
       })}
 

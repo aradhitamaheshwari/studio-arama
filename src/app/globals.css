@@ -1000,15 +1000,17 @@ body {
   inherits: false;
   initial-value: 1;
 }
-@property --px {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-@property --py {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
+
+/*
+  The anchor carries the pointer parallax and nothing else. Keeping it on its
+  own element means the loop can write a plain transform string every frame
+  without touching the custom properties that carry the slot's position, and
+  without interrupting the transition running on them.
+*/
+.slot-anchor {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .slot {
@@ -1042,11 +1044,7 @@ body {
     project compositions is a compositor job. Parallax is added into the same
     transform so the two never fight over the property.
   */
-  transform: translate3d(
-    calc(var(--mtx) + var(--px, 0px)),
-    calc(var(--mty) + var(--py, 0px)),
-    0
-  );
+  transform: translate3d(var(--mtx), var(--mty), 0);
   /*
     Only the position animates, and only through transform, which the compositor
     can do on its own.
@@ -1060,7 +1058,6 @@ body {
   transition: --mtx 0.8s var(--ease-out), --mty 0.8s var(--ease-out),
     --tx 0.8s var(--ease-out), --ty 0.8s var(--ease-out),
     opacity 0.5s var(--ease-out);
-  will-change: transform;
 }
 
 @media (min-width: 768px) {
@@ -1068,11 +1065,7 @@ body {
     width: min(calc(var(--h) * var(--aspect)), 30vw);
     aspect-ratio: var(--aspect);
     height: auto;
-    transform: translate3d(
-      calc(var(--tx) + var(--px, 0px)),
-      calc(var(--ty) + var(--py, 0px)),
-      0
-    );
+    transform: translate3d(var(--tx), var(--ty), 0);
   }
 }
 
