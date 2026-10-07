@@ -95,31 +95,17 @@ export default function LandingComposition() {
   );
 
   /**
-   * Leaving an image returns the screen to the mixed state, but moving from
-   * one image to the next should not flicker through it on the way. The clear
-   * is therefore scheduled a beat ahead and cancelled by whichever image the
-   * pointer arrives at next.
+   * Which project holds the screen changes when the pointer arrives at an
+   * image, and is given up only when the pointer leaves the composition
+   * entirely.
+   *
+   * It deliberately does not reset when the pointer merely slips off an image
+   * into the space between them. The images move when a project activates, so
+   * the one under the cursor slides away from it; resetting on that would put
+   * the composition back, slide the image under the cursor again, and start the
+   * whole thing over. That feedback loop was the flicker.
    */
-  const clearTimer = useRef<number | null>(null);
-
-  const hold = useCallback((slug: string) => {
-    if (clearTimer.current) {
-      window.clearTimeout(clearTimer.current);
-      clearTimer.current = null;
-    }
-    setActive(slug);
-  }, []);
-
-  const release = useCallback(() => {
-    if (clearTimer.current) window.clearTimeout(clearTimer.current);
-    clearTimer.current = window.setTimeout(() => setActive(null), 90);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (clearTimer.current) window.clearTimeout(clearTimer.current);
-    };
-  }, []);
+  const hold = useCallback((slug: string) => setActive(slug), []);
 
   return (
     <div
@@ -166,7 +152,6 @@ export default function LandingComposition() {
               } as React.CSSProperties
             }
             onPointerEnter={() => !touch && hold(resting.slug)}
-            onPointerLeave={() => !touch && release()}
             onFocus={() => hold(resting.slug)}
             onClick={(e) => {
               if (e.metaKey || e.ctrlKey || e.shiftKey) return;

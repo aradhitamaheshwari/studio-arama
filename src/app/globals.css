@@ -1047,10 +1047,20 @@ body {
     calc(var(--mty) + var(--py, 0px)),
     0
   );
-  transition: --mtx 0.85s var(--ease-out), --mty 0.85s var(--ease-out),
-    --mh 0.85s var(--ease-out), --tx 0.85s var(--ease-out),
-    --ty 0.85s var(--ease-out), --h 0.85s var(--ease-out),
-    --aspect 0.85s var(--ease-out), opacity 0.6s var(--ease-out);
+  /*
+    Only the position animates, and only through transform, which the compositor
+    can do on its own.
+
+    Size is deliberately left out. Animating --h and --aspect meant width and
+    aspect-ratio were recomputed every frame, which is a full layout pass over
+    five slots and the twenty five images inside them, sixty times a second.
+    That was the stutter. The box now takes its new shape at once, under cover
+    of the crossfade, and only travels.
+  */
+  transition: --mtx 0.8s var(--ease-out), --mty 0.8s var(--ease-out),
+    --tx 0.8s var(--ease-out), --ty 0.8s var(--ease-out),
+    opacity 0.5s var(--ease-out);
+  will-change: transform;
 }
 
 @media (min-width: 768px) {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getNextProject, getProject, projects } from "@/lib/projects";
+import { getBanner, getNextProject, getProject, projects } from "@/lib/projects";
 
 /**
  * A project reads as an editorial story. The images carry it, the writing sits
@@ -37,7 +37,10 @@ export default async function ProjectPage({ params }: Params) {
   if (!project) notFound();
 
   const next = getNextProject(project.slug);
-  const [opening, ...rest] = project.images;
+  // The banner is chosen for its proportions, so it is not necessarily the
+  // cover. Whichever it is, it does not appear twice on the page.
+  const opening = getBanner(project);
+  const rest = project.images.filter((i) => i.src !== opening.src);
 
   return (
     <article>
@@ -53,7 +56,7 @@ export default async function ProjectPage({ params }: Params) {
           alt={opening.alt}
           width={opening.w}
           height={opening.h}
-          className="mx-auto h-auto max-h-[82svh] w-auto max-w-full"
+          className="mx-auto h-auto max-h-[80svh] w-auto max-w-[72rem]"
           fetchPriority="high"
         />
       </div>
@@ -88,19 +91,21 @@ export default async function ProjectPage({ params }: Params) {
         </div>
       </section>
 
-      {/* The rhythm. Proportions alternate so nothing settles into a column. */}
+      {/*
+        One centred column, one gap.
+
+        The images used to alternate which edge they hung from, at three
+        different widths, which left the page reading ragged and weighted to the
+        left. They now share a centre line and a single rhythm, and the pace
+        comes from the pictures themselves: a landscape takes the full measure,
+        a portrait takes a narrower one, and neither is recropped to get there.
+      */}
       <div className="flex flex-col gap-[var(--space-block)] pt-[var(--space-section)]">
-        {rest.map((image, i) => {
-          // Rhythm comes from how much width a picture is given and which edge
-          // it hangs from, never from recropping it. A landscape stays
-          // landscape, a portrait stays portrait, and the page gets its pace
-          // from the difference between them.
+        {rest.map((image) => {
           const wide = image.aspect > 1.2;
-          const width = wide ? "md:w-[78%]" : i % 3 === 0 ? "md:w-[46%]" : "md:w-[60%]";
-          const edge = i % 2 === 1 ? "md:ml-auto" : "md:mr-auto";
           return (
-            <figure key={image.src} className={`gutter reveal flex ${edge}`}>
-              <div className={`w-full ${width}`}>
+            <figure key={image.src} className="gutter reveal">
+              <div className={`mx-auto w-full ${wide ? "max-w-[72rem]" : "max-w-[40rem]"}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.src}

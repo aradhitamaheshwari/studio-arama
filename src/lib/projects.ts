@@ -251,6 +251,19 @@ export const projects: Project[] = [
   },
 ];
 
+/**
+ * The image that opens a project page.
+ *
+ * A banner wants to be horizontal, so the first landscape image wins. Bar 57
+ * and Akhai were photographed entirely in portrait, so for those the widest
+ * image stands in rather than a landscape crop being forced out of a tall
+ * picture. Add a horizontal shot to either folder and it is picked up here
+ * with no other change.
+ */
+export const getBanner = (project: Project): ProjectImage =>
+  project.images.find((i) => i.aspect > 1) ??
+  project.images.reduce((widest, i) => (i.aspect > widest.aspect ? i : widest));
+
 export const getProject = (slug: string) => projects.find((p) => p.slug === slug);
 
 export const getNextProject = (slug: string) => {
